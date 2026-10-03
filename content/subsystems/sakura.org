@@ -1,0 +1,66 @@
+#+TITLE: Sakura
+#+WEIGHT: 1
+#+TAGLINE: Purely relational
+#+SHORT: Purely relational algebra
+#+ICON: sakura-blossom.svg
+#+ACCENT: sakura
+#+FACTS: Branches · merges · constraints
+
+A semantic-relational algebra engine after Codd’s RM/T. Relations carry both
+intension and extension. Ephemeral relations remember their provenance and
+lineage, so a derived relation stays updatable.
+
+#+begin_src lisp
+(CreateRelation (name "scores")
+  (schema ((player "string") (pts "integer"))))
+(CreateBranch (name "v1"))
+(InsertTuple (relation "scores")
+  (attributes ((player (Str "Alice"))
+               (pts (Int 10)))))
+(Checkout "v1")
+(Base scores)
+#+end_src
+
+# more
+
+* Design intent
+Sakura treats relations as algebraic units with both sides of their meaning:
+
+- extension :: the actual tuples, finite or generated;
+- intension :: the schema, the constraints and the meaning of a derivation.
+
+The engine already exposes the extension side for most operations. The active
+work is making intension consistent across planners, operators and protocols.
+
+* Glossary
+- Relation :: a cartesian product of primitive domains with a membership
+  criterion over an intension, the collection of business rules.
+- Ephemeral relation :: a relation whose values are generated on demand. It
+  is catalogued like any other relation, but every relational operation
+  yields one: =R2 <- project {field1, field2} R1= makes =R2= ephemeral.
+- Provenance :: where an attribute of a derived relation comes from. Because
+  the base relations are always known, views stay updatable.
+- Lineage :: which operation produced an attribute: a join, a projection and
+  so on.
+
+* Branches
+Every state of the database is a branch, and branches merge with an explicit
+strategy when they conflict.
+
+| Strategy           | On conflict                                   |
+|--------------------+-----------------------------------------------|
+| =PreferLeft=       | keep the left branch’s version                |
+| =PreferRight=      | keep the right branch’s version               |
+| =RevertToAncestor= | revert the relation to the common ancestor    |
+
+* In the same runtime
+Sakura is where a relation means something. Every other subsystem sees a
+relation as a heading and a set of tuples; Sakura also keeps its intension —
+the constraints it obeys and the derivation it came from — and RNT keeps all
+of it in one object tree.
+
+So the relations Sakura defines are relations pureSQL can select from and
+Forth can open, and the relations Karuta declares =sakura:persisted= are
+kept by Sakura, beside everyone else’s. Because an ephemeral relation knows
+its provenance, a change made through any subsystem has a way back to the
+base relations it touches.

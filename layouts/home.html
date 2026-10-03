@@ -1,0 +1,181 @@
+{{ define "main" }}
+{{- $subsystems := (site.GetPage "/subsystems").Pages.ByWeight -}}
+{{- $arch := hugo.Data.architecture -}}
+
+<section id="top" class="hero wrap">
+  <div class="hero__text">
+    <p class="eyebrow eyebrow--light">{{ .Params.eyebrow }}</p>
+    <h1 class="hero__title">{{ partial "lines.html" .Params.headline }}</h1>
+    <div class="hero__lede">{{ .Content }}</div>
+    <div class="actions">
+      <a class="btn btn--primary" href="#architecture">Read the design</a>
+      <a class="btn btn--ghost" href="{{ site.Params.sourceURL }}">Browse the source</a>
+    </div>
+  </div>
+  <div class="hero__art">
+    <img src="{{ "images/rnt-trio.svg" | relURL }}" alt="The RNT mark: a red cone, a violet sphere and a yellow cube" width="470" height="449">
+  </div>
+</section>
+
+<div class="wrap dock-wrap">
+  <nav class="dock" aria-label="Subsystems">
+    <span class="dock__label">{{ .Params.dock_label }}</span>
+    {{- range $subsystems }}
+    <a class="dock__item" href="#{{ .File.ContentBaseName }}"><img src="{{ printf "images/%s" .Params.icon | relURL }}" alt="" width="34" height="36">{{ .Title }}</a>
+    {{- end }}
+  </nav>
+</div>
+
+{{ with site.GetPage "/home/architecture" }}
+<section id="architecture" class="wrap section">
+  <div class="window">
+    {{ partial "titlebar.html" .Params.window }}
+    <div class="window__body">
+      <div class="section-head">
+        <h2 class="display">{{ partial "lines.html" .Title }}</h2>
+        <div class="section-head__lede">{{ .Content }}</div>
+      </div>
+
+      <div class="layer">
+        <div class="layer__label"><p class="layer__name">{{ $arch.subsystems.label }}</p><p class="layer__nt">{{ $arch.subsystems.nt }}</p></div>
+        <div class="layer__boxes layer__boxes--subsystems">
+          {{- range $subsystems }}
+          <a class="box box--link" href="#{{ .File.ContentBaseName }}">
+            <img class="box__icon" src="{{ printf "images/%s" .Params.icon | relURL }}" alt="" width="42" height="46">
+            <span class="box__text">
+              <span class="box__name">{{ .Title }}{{ with .Params.port }} <span class="port">:{{ . }}</span>{{ end }}</span>
+              <span class="box__desc">{{ .Params.short }}</span>
+            </span>
+          </a>
+          {{- end }}
+        </div>
+      </div>
+
+      {{ partial "bus.html" $arch.native_api }}
+
+      <div class="layer">
+        <div class="layer__label"><p class="layer__name">{{ $arch.kernel.label }}</p><p class="layer__nt">{{ $arch.kernel.nt }}</p></div>
+        <div class="layer__boxes layer__boxes--kernel">
+          {{- range $arch.kernel.boxes }}
+          <div class="box box--stack">
+            <p class="box__name">{{ .name }}</p>
+            {{- with .paths }}
+            <p class="box__desc box__desc--mono">{{ delimit . "<br>" | safeHTML }}</p>
+            {{- else }}
+            <p class="box__desc">{{ .text }}</p>
+            {{- end }}
+          </div>
+          {{- end }}
+        </div>
+      </div>
+
+      {{ partial "bus.html" $arch.driver_api }}
+
+      <div class="layer">
+        <div class="layer__label"><p class="layer__name">{{ $arch.drivers.label }}</p><p class="layer__nt">{{ $arch.drivers.nt }}</p></div>
+        <div class="layer__boxes">
+          {{- range $arch.drivers.boxes }}
+          <div class="box box--stack{{ with .style }} box--{{ . }}{{ end }}">
+            <p class="box__name">{{ .name }}{{ with .status }} <span class="box__status">{{ . }}</span>{{ end }}</p>
+            <p class="box__desc">{{ .text }}</p>
+            {{- with .items }}
+            <p class="box__items">{{ delimit . " · " }}</p>
+            {{- end }}
+          </div>
+          {{- end }}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{{ end }}
+
+{{ with site.GetPage "/home/subsystems" }}
+<section id="subsystems" class="wrap section">
+  <div class="window">
+    {{ partial "titlebar.html" (printf "%s — %d items" .Params.window (len $subsystems)) }}
+    <div class="window__body">
+      <h2 class="display">{{ partial "lines.html" .Title }}</h2>
+      <div class="lede">{{ .Content }}</div>
+      <div class="cards">
+        {{- range $subsystems }}
+        {{ partial "subsystem-card.html" . }}
+        {{- end }}
+      </div>
+    </div>
+  </div>
+</section>
+{{ end }}
+
+{{ with site.GetPage "/home/object-tree" }}
+<section id="object-tree" class="wrap section">
+  <div class="window">
+    {{ partial "titlebar.html" .Params.window }}
+    <div class="split">
+      <div class="tree">
+        <p class="tree__head">Name · served by</p>
+        <ul class="tree__list">
+          {{- range hugo.Data.objecttree.nodes }}
+          <li>
+            <span class="tree__node">{{ if .open }}▾{{ else }}▸{{ end }} {{ .path }}</span>
+            {{- with .rows }}
+            <ul>
+              {{- range . }}
+              {{- $by := .by }}
+              <li class="tree__row tree__row--{{ $by }}">
+                <span>{{ .name }}</span>
+                <span class="tree__by">{{ with site.GetPage (printf "/subsystems/%s" $by) }}{{ .Title }}{{ else }}{{ $by }}{{ end }}</span>
+              </li>
+              {{- end }}
+            </ul>
+            {{- end }}
+          </li>
+          {{- end }}
+        </ul>
+      </div>
+      <div class="split__main">
+        <h2 class="display">{{ partial "lines.html" .Title }}</h2>
+        <div class="prose prose--split">{{ .Content }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+{{ end }}
+
+{{ with site.GetPage "/home/kernel" }}
+<section id="kernel" class="wrap section">
+  <div class="window">
+    {{ partial "titlebar.html" .Params.window }}
+    <div class="window__body">
+      <h2 class="display">{{ partial "lines.html" .Title }}</h2>
+      <p class="lede">{{ .Params.intro }}</p>
+      <div class="principles">{{ .Content }}</div>
+      {{ with site.GetPage "/home/status" }}
+      <div class="status">
+        <div class="status__label">
+          <p class="eyebrow">{{ .Title }}</p>
+          <p>{{ .Params.intro }}</p>
+        </div>
+        <div class="status__list">{{ .Content }}</div>
+      </div>
+      {{ end }}
+    </div>
+  </div>
+</section>
+{{ end }}
+
+{{ with site.GetPage "/home/freedom" }}
+<section id="freedom" class="wrap freedom">
+  <div class="freedom__art">{{ partial "agpl-art.html" . }}</div>
+  <div class="freedom__text">
+    <p class="eyebrow eyebrow--light">{{ .Params.eyebrow }}</p>
+    <h2 class="freedom__title">{{ partial "lines.html" .Title }}</h2>
+    <div class="freedom__body">{{ .Content }}</div>
+    <div class="actions">
+      <a class="btn btn--primary" href="https://www.gnu.org/licenses/agpl-3.0.html">Read the AGPL v3</a>
+      <a class="btn btn--ghost" href="https://www.gnu.org/philosophy/free-sw.html">What is free software?</a>
+    </div>
+  </div>
+</section>
+{{ end }}
+{{ end }}

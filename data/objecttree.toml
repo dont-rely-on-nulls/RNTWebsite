@@ -1,0 +1,40 @@
+# The object tree listing on the home page. "by" names the subsystem that
+# serves a row (a content/subsystems page name), or "kernel".
+
+[[nodes]]
+path = "\\relation"
+open = true
+  [[nodes.rows]]
+  name = "S · P · SP"
+  by = "puresql"
+  [[nodes.rows]]
+  name = "DEE · DUM"
+  by = "puresql"
+  [[nodes.rows]]
+  name = "STACK · RSTACK"
+  by = "forth"
+  [[nodes.rows]]
+  name = "MEMORY · WORDS"
+  by = "forth"
+  [[nodes.rows]]
+  name = "REGISTERS"
+  by = "forth"
+
+[[nodes]]
+path = "\\evaluator"
+open = true
+  [[nodes.rows]]
+  name = "fol"
+  by = "kernel"
+  [[nodes.rows]]
+  name = "algebra · psm"
+  by = "puresql"
+
+[[nodes]]
+path = "\\routine"
+
+[[nodes]]
+path = "\\session"
+
+[[nodes]]
+path = "\\branch"

@@ -1,0 +1,113 @@
+#+TITLE: Sol
+#+WEIGHT: 5
+#+TAGLINE: Programs that prove they halt
+#+SHORT: Total relations, proven to terminate
+#+ICON: sol-sun.svg
+#+ACCENT: sol
+#+FACTS: Total · termination proofs · checker proven in Rocq
+
+A total relational language, closer to a proof assistant than to a
+scripting language. Sol admits a program only with a proof that it
+terminates. Keyword messages come from Smalltalk, rules and unification from
+Prolog, and the checker that judges the proofs is itself proven in Rocq.
+
+#+begin_src sol
+Rule name: "an empty list has length zero"
+     head: [Length list: #() result: 0]
+     body: [True]
+
+Rule name: "a cons adds one"
+     head: [Length list: #(H | T) result: R]
+     body: [Length list: T result: P] :and
+           [Plus left: 1 right: P result: R]
+
+Query expression: [Length list: #(1 2 3) result: R]
+#+end_src
+
+# more
+
+* Not Turing complete, on purpose
+Most languages let a program loop forever and leave it to you to notice. Sol
+gives that up. Every program it accepts terminates, so a question asked in
+Sol always gets an answer, and a plan that cannot be shown to finish is
+rejected before it runs rather than attempted.
+
+That is what makes Sol the language to administer RNT with. A migration, an
+integrity sweep or a question about the catalog is something the kernel can
+accept knowing it will finish.
+
+* Admission is a proof
+Recursion is admitted only with a termination argument. In the rule above
+=T= sits strictly inside =#(H | T)=, so =Length= decreases structurally.
+Mutual recursion is admitted under a shared lexicographic measure:
+
+#+begin_src sol
+Rule name: "a cons flips even to odd"
+     head: [Even list: #(H | T)]
+     body: [Odd list: T]
+
+Rule name: "a cons flips odd to even"
+     head: [Odd list: #(H | T)]
+     body: [Even list: T]
+#+end_src
+
+The admission checker’s central claim, that strict containment decreases a
+well-founded measure, is proven in Rocq and extracted into the OCaml that
+runs it. The proof is not documentation beside the checker: it is the
+checker.
+
+* Relations, rules and denial
+Relations are declared with a schema, facts are bracketed applications, and
+rules join through shared variables. Negation is decidable, and =Exists= and
+=ForAll= quantify within the world:
+
+#+begin_src sol
+Relation named: Person schema: #(
+  [name domain: String]
+  [age domain: Integer]
+)
+
+[Person name: "Marcos" age: 30]
+[Person name: "Ana" age: 12]
+
+Rule name: "an adult is a person of age at least 18"
+     head: [Adult name: N]
+     body: [Person name: N age: A] :and
+           [GreaterEqual left: A right: 18]
+
+Query expression: ([Person name: N age: A]) :not [Adult name: N]
+#+end_src
+
+* Integrity is membership
+Primitive domains, refinements and foreign keys are one mechanism: a domain
+is a relation, and an attribute’s value must be a member of it. A program
+whose facts break a schema gets no world at all.
+
+#+begin_src sol
+Relation named: Employee schema: #(
+  [name domain: String]
+  [dept domain: ([Department id: D])]
+  [score domain: ([Natural value: S] :and [LessThanEqual left: S right: 100])]
+)
+#+end_src
+
+Appending =[Employee name: "Over" dept: 1 score: 101]= makes admission
+reject the whole program.
+
+* Proofs as you type
+=sol lsp= is a language server that publishes admission diagnostics —
+totality, schemas, integrity — while you edit, and =sol-mode= brings
+highlighting, navigation and an inferior REPL to Emacs. Writing a Sol
+program feels like working in a proof assistant: the editor tells you
+whether it is admissible before you ever run it.
+
+* In the same runtime
+Sol runs over an abstract world, and inside RNT that world is the kernel’s
+object tree. Every relation another subsystem registers is a relation Sol
+can name: the suppliers pureSQL serves, the five relations of a running
+Forth, the relations Sakura and Karuta persist. Because Sol is total, an
+administrative question over all of them is guaranteed to come back.
+
+And the catalog is not a special interface. Which relations exist, which
+evaluators are registered, which routines are defined: those are relations
+in the same tree, and Sol queries them the way it queries anything else.

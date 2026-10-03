@@ -1,0 +1,49 @@
+/* Chroma classes, coloured like the design: keywords in sky, strings in
+   blossom, numbers in brick, comments muted. */
+
+.chroma { color: #E4E4F0; }
+.chroma .line, .chroma .cl { display: inline; }
+
+.chroma .k, .chroma .kc, .chroma .kd, .chroma .kn, .chroma .kp,
+.chroma .kr, .chroma .kt, .chroma .nb, .chroma .nf, .chroma .nn,
+.chroma .ow { color: #9DB8F5; }
+
+.chroma .s, .chroma .sa, .chroma .sb, .chroma .sc, .chroma .dl,
+.chroma .sd, .chroma .s1, .chroma .s2, .chroma .se, .chroma .sh,
+.chroma .si, .chroma .sx, .chroma .sr, .chroma .ss { color: #F9B3C9; }
+
+.chroma .m, .chroma .mb, .chroma .mf, .chroma .mh, .chroma .mi,
+.chroma .il, .chroma .mo { color: #FFC685; }
+
+.chroma .c, .chroma .ch, .chroma .cm, .chroma .c1, .chroma .cs,
+.chroma .cp, .chroma .cpf { color: #9A9AB8; font-style: normal; }
+
+.chroma .err { color: inherit; background: none; }
+
+/* The kernel principles use light code panels. */
+.principles .chroma { color: #1C1C33; }
+.principles .chroma .s, .principles .chroma .s2 { color: #A63F63; }
+.principles .chroma .nn, .principles .chroma .k { color: #2E56AE; }
+
+/* Sol, in the dark-background faces of editors/emacs/sol-mode.el. */
+.hl-sol-keyword { color: #c678dd; font-weight: 700; }
+.hl-sol-combinator { color: #56b6c2; font-weight: 700; }
+.hl-sol-builtin-label { color: #e5c07b; }
+.hl-sol-label { color: #61afef; }
+.hl-sol-relation { color: #98c379; font-weight: 700; }
+.hl-sol-variable { color: #e06c75; }
+.hl-sol-reference { color: #d19a66; font-weight: 700; }
+.hl-sol-number { color: #ff79c6; }
+.hl-sol-bracket { color: #828997; }
+.hl-comment { color: #9A9AB8; }
+code[data-lang="sol"] .hl-string { color: #98c379; }
+
+/* Dandelion: bundles, answers, hidden joins and growing links. */
+.hl-dl-bundle { color: #9DB8F5; font-weight: 700; }
+.hl-dl-answer { color: #FFC685; font-weight: 600; }
+.hl-dl-hidden { color: #B9B9D6; font-style: italic; }
+.hl-dl-builtin { color: #c9a3f5; }
+.hl-dl-closure { color: #56b6c2; font-weight: 700; }
+.hl-dl-reverse { color: #56b6c2; }
+.hl-dl-period { color: #828997; }
+code[data-lang="dandelion"] .hl-string { color: #F9B3C9; }

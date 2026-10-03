@@ -1,0 +1,27 @@
+#+TITLE: A small runtime you can read end to end.
+#+WINDOW: Kernel — read me first
+#+WEIGHT: 4
+#+INTRO: Most of what a database hard-codes — what an object can do, which language queries it, where its bytes live — RNT lets you add from outside the kernel.
+
+* Everything has a path
+Relations, branches, sessions and evaluators live in one object tree. If you
+can name it, you can reach it.
+
+#+begin_src ocaml
+Path.lookup root ("session" @/ "client" @/ "branch" @/ this)
+#+end_src
+
+* Teach objects new tricks
+What an object can do is a list of protocols, and the set is open. Clients
+that only know =Directory= keep working; clients that know your protocol ask
+the handle for it.
+
+* Bring your own drivers
+A driver is a narrow dispatch table, and the kernel never asks what is
+behind it. Storage drivers implement eight operations over content-addressed
+tuples; others take work an evaluator delegates — a multi-way join on the
+GPU, relations served over HTTP. The sky is the limit.
+
+* Nothing happens behind your back
+All access goes through an explicit handle. Opening, closing, pinning,
+cleanup and contention follow documented lifecycle rules.

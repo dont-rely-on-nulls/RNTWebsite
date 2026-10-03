@@ -1,0 +1,22 @@
+#+TITLE: Subsystems meet in the tree, never in each other.
+#+WINDOW: \ — object tree
+#+WEIGHT: 3
+
+One host initializes RNT once and starts every subsystem on the same root.
+Forth binds its machine under =\relation=, so SQL can watch a running Forth —
+every line it runs is a new state of what SQL sees.
+
+#+begin_src sql
+-- from pureSQL, reading the Forth data stack
+SELECT DEPTH, CELL FROM STACK ORDER BY DEPTH DESC;
+SELECT NAME FROM WORDS WHERE IMMEDIATE <> 0;
+#+end_src
+
+#+begin_src text
+\ from Forth, reading pureSQL's shipments
+S" SP" OPEN-RELATION THROW  VALUE SHIPMENTS
+CREATE ROW 3 CELLS ALLOT
+: TOTAL ( -- n )
+  0 BEGIN ROW SHIPMENTS READ-TUPLE THROW
+  WHILE ROW 1 CELLS + @ + REPEAT ;
+#+end_src

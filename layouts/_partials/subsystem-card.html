@@ -1,0 +1,15 @@
+{{- /* A subsystem window on the home page: what its org file has above "# more". */ -}}
+<article id="{{ .File.ContentBaseName }}" class="card card--{{ .Params.accent }}">
+  <div class="card__head">
+    <img class="card__icon" src="{{ printf "images/%s" .Params.icon | relURL }}" alt="" width="68" height="72">
+    <div>
+      <h3 class="card__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+      <p class="card__tag">{{ .Params.tagline }}</p>
+    </div>
+  </div>
+  <div class="card__body">{{ .Summary }}</div>
+  <div class="card__foot">
+    <span>{{ .Params.facts }}</span>
+    <a class="card__more" href="{{ .RelPermalink }}">More<span class="visually-hidden"> about {{ .Title }}</span> →</a>
+  </div>
+</article>

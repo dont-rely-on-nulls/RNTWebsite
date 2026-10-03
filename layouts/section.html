@@ -1,0 +1,16 @@
+{{ define "main" }}
+<section class="wrap section section--first">
+  <div class="window">
+    {{ partial "titlebar.html" (printf "%s — %d items" .Title (len .Pages)) }}
+    <div class="window__body">
+      <h1 class="display display--page">{{ .Title }}</h1>
+      {{ with .Content }}<div class="lede">{{ . }}</div>{{ end }}
+      <div class="cards">
+        {{- range .Pages.ByWeight }}
+        {{ partial "subsystem-card.html" . }}
+        {{- end }}
+      </div>
+    </div>
+  </div>
+</section>
+{{ end }}

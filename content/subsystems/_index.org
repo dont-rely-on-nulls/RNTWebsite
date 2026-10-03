@@ -1,0 +1,3 @@
+#+TITLE: Subsystems
+
+Each subsystem translates its own language into kernel operations over the same object tree.

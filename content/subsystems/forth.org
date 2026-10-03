@@ -1,0 +1,114 @@
+#+TITLE: Forth
+#+WEIGHT: 3
+#+TAGLINE: A machine made of relations
+#+SHORT: Forth 2012 on a relational machine
+#+PORT: 7779
+#+ICON: forth-bricks.svg
+#+ACCENT: forth
+#+FACTS: Atomic lines · UNDO · CATCH / THROW · TCP :7779
+
+The Core word set of Forth 2012, on a machine with no state but five
+relations: =STACK=, =RSTACK=, =MEMORY=, =WORDS= and =REGISTERS=. Every word
+yields a successor state, so a line is atomic and =UNDO= steps back.
+
+#+begin_src text
+> : SQUARE ( n -- n*n ) DUP * ;
+ok
+> 7 SQUARE .
+49 ok
+> 1 0 /
+error -10: division by zero
+> .S
+<0> ok
+#+end_src
+
+# more
+
+* The machine
+A classic Forth runs on two stacks and a block of memory. This one runs on
+relations of integers, and has no other state.
+
+| Relation    | Heading               | Holds                                     |
+|-------------+-----------------------+-------------------------------------------|
+| =STACK=     | (DEPTH, CELL)         | the data stack                            |
+| =RSTACK=    | (DEPTH, CELL)         | the return stack                          |
+| =MEMORY=    | (ADDRESS, CELL)       | data space, compiled code included        |
+| =WORDS=     | (NAME, XT, IMMEDIATE) | the dictionary                            |
+| =REGISTERS= | (NAME, CELL)          | =IP=, and =LATEST=, the newest definition |
+
+A primitive is a successor state: a relational expression from the relations
+before it to the relations after it. With =d= the greatest depth in =STACK=:
+
+#+begin_src text
+DUP   STACK' = STACK ∪ { (d+1, c) | (d, c) ∈ STACK }
+DROP  STACK' = STACK − { (d, c) | (d, c) ∈ STACK }
+#+end_src
+
+* State
+The machine is an immutable value, the five relations together, and a word
+produces a successor rather than changing it. That gives two things a classic
+Forth does not have:
+
+- a line is atomic. If a word in it fails, the machine keeps the state it had
+  before the line, rather than clearing the stacks as =ABORT= would;
+- =UNDO= returns to the state before the last line, and again before the one
+  before that.
+
+* Departures from Forth 2012
+- a cell is an OCaml integer, 63 bits wide;
+- a character occupies a cell, so =CHARS= and =CELLS= are both the identity;
+- reading an address never written is an error, not garbage;
+- the terminal is served line by line, so there is no =KEY= or =ACCEPT=.
+
+* In the same runtime
+Subsystems meet in RNT’s object tree and never link each other. One host
+process initializes RNT once and starts every subsystem on the same root,
+each with a listener of its own: pureSQL on 7778, Forth on 7779.
+
+** SQL reads the machine
+The five relations of the machine are bound under =\relation=, so a running
+Forth is something you can query. Every line it runs is a new state of what
+SQL sees — including your variables:
+
+#+begin_src forth
+VARIABLE X  42 X !
+#+end_src
+
+#+begin_src sql
+-- the data stack, top first
+SELECT DEPTH, CELL FROM STACK ORDER BY DEPTH DESC;
+
+-- every immediate word in the dictionary
+SELECT NAME FROM WORDS WHERE IMMEDIATE <> 0;
+
+-- the value of the variable X, from its parameter field
+SELECT M.CELL FROM WORDS AS W JOIN MEMORY AS M ON M.ADDRESS = W.XT + 2
+ WHERE W.NAME = 'X';
+#+end_src
+
+** Forth reads relations
+A relation is read as a file is, one tuple at a time. =OPEN-RELATION= opens
+anything under =\relation=, whoever put it there:
+
+#+begin_src forth
+S" SP" OPEN-RELATION THROW  VALUE SHIPMENTS
+CREATE ROW 3 CELLS ALLOT
+: TOTAL ( -- n )
+  0 BEGIN ROW SHIPMENTS READ-TUPLE THROW WHILE ROW 1 CELLS + @ + REPEAT ;
+#+end_src
+
+=READ-TUPLE= writes one cell per attribute, names in alphabetical order. The
+relation is read whole when it is opened, so a reading sees one state of it.
+
+** Programs, both ways
+A word is a procedural relation, and its stack effect is its mode: =SQUARE=
+denotes =SQUARE[N, N*N]=, generating =N*N= once =N= is bound, just as a
+PSM function =F(X)= denotes =F[X, F]=. With the =Generative= protocol shared
+through the kernel, neither language has to know the other:
+
+#+begin_src sql
+SELECT PNO, SQUARE(QTY) AS Q FROM SP;
+#+end_src
+
+Reading in both directions works today, with tests. Invoking programs across
+subsystems is the next step.

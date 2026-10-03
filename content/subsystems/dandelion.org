@@ -1,0 +1,149 @@
+#+TITLE: Dandelion
+#+WEIGHT: 6
+#+TAGLINE: A graph database over relations
+#+SHORT: Graphs made of stems
+#+ICON: graph-tetra.svg
+#+ACCENT: dandelion
+#+FACTS: Stems · bundles · closures · programs are graphs
+
+A graph language where everything is a stem: a subject, a link and an
+object, ended by a period. Declarations, rules and questions are all
+bundles of stems, so a Dandelion program is itself a graph — one you can
+query with Dandelion.
+
+#+begin_src dandelion
+Supply:
+  S   key   SNO.
+  P   key   PNO.
+  SP  from  SNO.
+  SP  to    PNO.
+
+? who ships a part that S1 ships:
+  'S1'  SP     _part.
+  _s    SP     _part.
+  _s    isnt   'S1'.
+  _s    SNAME  ?NAME.
+#+end_src
+
+# more
+
+* Why a dandelion
+A dandelion seed head is a graph in plain sight: one centre, many stems, a
+seed at the end of each one, and every seed free to land somewhere else and
+start another. The language is named after it, and built from the same
+part: the stem.
+
+* One shape: the stem
+A stem is three terms and a period:
+
+#+begin_src dandelion
+subject  link  object.
+#+end_src
+
+There is nothing else. A stem can state a fact, constrain a question or
+define part of a rule, and it is written the same way every time. The terms
+are:
+
+| Term       | Is                                                       |
+|------------+----------------------------------------------------------|
+| =SP=, =key=    | a name: a relation, an attribute, a rule or a builtin    |
+| ='S1'=, =42=   | a value                                                  |
+| =?NAME=      | an answer variable: it becomes an attribute of the result |
+| =_part=      | a hidden variable: it joins, then disappears             |
+
+A link is anything that relates two things. A relation that bridges two
+islands is a link; so is an attribute, which relates a tuple to its value; so
+is a rule you wrote; and so are the builtins =key=, =from=, =to=, =isnt= and
+=below=.
+
+* Bundles
+Stems are grouped into bundles: a name, a colon, and the stems indented
+beneath it. What a bundle means depends only on what is in it.
+
+- A bundle without variables states facts. A graph declaration is just facts
+  about relations: which attribute keys an island, which attributes a bridge
+  goes from and to.
+- A bundle with answer variables defines a relation, named after the bundle,
+  whose attributes are those variables.
+- A bundle whose name starts with =?= is a question: it defines the same kind
+  of relation, and asks it now.
+
+#+begin_src dandelion
+Backbone:
+  Router  key   NAME.
+  Link    from  SRC.
+  Link    to    DST.
+#+end_src
+
+The =Supply= graph at the top of this page is Date’s suppliers and parts,
+exactly as pureSQL registers them under =\relation=. Nothing is copied: =S=,
+=P= and =SP= stay where they are, and the declaration is a way of reading
+them.
+
+* Links that grow
+A link can be followed more than once, or backwards:
+
+| Link    | Reads                                    |
+|---------+------------------------------------------|
+| =SP=      | one step                                 |
+| =~SP=     | one step backwards                       |
+| =SP+=     | one or more steps: the transitive closure |
+| =SP*=     | zero or more steps: a thing reaches itself |
+
+A bundle with exactly two answer variables is a link of its own, so rules
+compose with closures. Here =peer= relates two suppliers that ship a common
+part, and =peer+= follows that relation as far as it goes:
+
+#+begin_src dandelion
+peer:
+  ?A  SP    _part.
+  ?B  SP    _part.
+  ?A  isnt  ?B.
+
+? everyone S1 is connected to through shared parts:
+  'S1'  peer+  _s.
+  _s    SNAME  ?NAME.
+#+end_src
+
+* Programs are graphs
+Every bundle you write is stored as stems, one tuple each, in the relation
+=STEM (BUNDLE, SUBJECT, LINK, OBJECT)=. A tuple is an island and its
+attributes are links, so a Dandelion program can be asked about with
+Dandelion:
+
+#+begin_src dandelion
+? which bundles follow SP:
+  _stem  LINK    'SP'.
+  _stem  BUNDLE  ?BUNDLE.
+#+end_src
+
+There is no separate reflection API, and no second syntax for metadata.
+Code and data have the same shape because both are graphs.
+
+* Why every question ends
+Dandelion is Datalog-shaped: links relate things that already exist, and no
+rule builds a new value while it recurses. A closure is a least fixpoint —
+keep adding what one more step reaches until nothing new appears — over
+finite relations, so it always stops, and a cycle in the network adds
+nothing the second time around. Every program has a finite answer, and Sol
+can check that for any bundle you write.
+
+* In the same runtime
+A bundle with answer variables is a relation, and its name is where it is
+published, under =\relation=. Nothing else is needed to share it:
+
+#+begin_src dandelion
+REACHABLE:
+  'core-1'  Link+  _r.
+  _r        ZONE   'edge'.
+  _r        NAME   ?NAME.
+#+end_src
+
+#+begin_src sql
+-- from pureSQL: join reachability with inventory
+SELECT R.NAME, I.MODEL FROM REACHABLE AS R JOIN INVENTORY AS I USING (NAME);
+#+end_src
+
+Forth walks the same relation a tuple at a time with =OPEN-RELATION=, and
+because Dandelion reads relations live, a link inserted from pureSQL is a
+stem the next question follows.

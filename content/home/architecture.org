@@ -1,0 +1,7 @@
+#+TITLE: One kernel, | many personalities.
+#+WINDOW: Architecture
+#+WEIGHT: 1
+
+Win32, POSIX and OS/2 once sat side by side on the NT native API. RNT does
+the same for data: each subsystem translates its own language into kernel
+operations, and they all share the same objects.

@@ -1,0 +1,104 @@
+#+TITLE: pureSQL
+#+WEIGHT: 2
+#+TAGLINE: SQL, executed relationally
+#+SHORT: ISO SQL, no nulls, no duplicates
+#+PORT: 7778
+#+ICON: puresql-drop.svg
+#+ACCENT: puresql
+#+FACTS: No NULL · no DISTINCT · SQL/PSM routines · TCP :7778
+
+ISO/IEC 9075 SQL, read purely. Whatever yields nulls or duplicates does not
+exist. A query becomes a tree of ephemeral views, each the base of the next,
+and only the outermost is ever enumerated.
+
+#+begin_src sql
+SELECT SNO, COUNT(*) AS PARTS, SUM(QTY) AS TOTAL
+  FROM SP
+ GROUP BY SNO
+HAVING SUM(QTY) > 500
+ ORDER BY TOTAL DESC;
+#+end_src
+
+# more
+
+* A purely relational dialect
+The grammar, the syntax tree and the conditions keep the names the standard
+gives them. What does not survive is whatever yields duplicates or nulls:
+
+- no =NULL=, no =IS [NOT] NULL=, and no outer joins;
+- no =DISTINCT= or =ALL=, since every result is a relation;
+- no =CASE= without =ELSE=, and no =COUNT(x)=;
+- every column of a result has a name, and a name is used once.
+
+These words stay reserved, so a statement using them fails where it uses them
+and says why. =MIN= and =MAX= of an empty set raise a data exception (22000)
+rather than yield a null.
+
+* Mapping onto RNT
+pureSQL registers Date’s suppliers and parts under =\relation=: =S=, =P= and
+=SP=, together with =DEE= and =DUM=, the two relations with no attributes.
+
+Two evaluators run a query. The FOL evaluator shipped with RNT projects;
+pureSQL registers =\evaluator\algebra= for restriction, extension, renaming,
+natural join, union, intersection, difference and summarization, and
+=\evaluator\psm= for SQL/PSM routines. Invoking an evaluator reads nothing:
+=ORDER BY=, =OFFSET= and =FETCH FIRST= belong to the outermost cursor.
+
+* SQL/PSM
+Routines follow ISO/IEC 9075-4 and are checked completely before they are
+registered under =\routine=.
+
+#+begin_src sql
+CREATE FUNCTION SHIPPED (SUPPLIER VARCHAR) RETURNS INTEGER
+BEGIN
+  DECLARE TOTAL INTEGER DEFAULT 0;
+  FOR R AS SELECT PNO, QTY FROM SP WHERE SNO = SUPPLIER DO
+    SET TOTAL = TOTAL + R.QTY;
+  END FOR;
+  RETURN TOTAL;
+END;
+
+SELECT SNAME, SHIPPED(SNO) AS TOTAL FROM S ORDER BY TOTAL DESC;
+#+end_src
+
+* Transactions
+Routines are what a statement can change, so they are what a transaction
+covers. Each transaction works on its own copy of the routines; at =COMMIT=
+its changes are carried over to whatever was committed meanwhile, and it
+fails with 40001 only if another transaction changed one of the same
+routines first.
+
+#+begin_src sql
+START TRANSACTION;
+CREATE FUNCTION TWICE (N INTEGER) RETURNS INTEGER RETURN N * 2;
+SAVEPOINT BEFORE_THRICE;
+CREATE FUNCTION THRICE (N INTEGER) RETURNS INTEGER RETURN N * 3;
+ROLLBACK TO SAVEPOINT BEFORE_THRICE;
+COMMIT;
+#+end_src
+
+* In the same runtime
+pureSQL resolves a table name by looking it up under =\relation=. It does not
+care which subsystem put the relation there. When Forth runs in the same
+host, its machine is five more relations, and SQL reads them like any other:
+the data stack, the dictionary, even the value of a variable.
+
+#+begin_src sql
+SELECT M.CELL FROM WORDS AS W JOIN MEMORY AS M ON M.ADDRESS = W.XT + 2
+ WHERE W.NAME = 'X';
+#+end_src
+
+It works the other way too: Forth opens =SP= with =OPEN-RELATION= and walks
+the shipments one tuple at a time. And because routines are registered under
+=\routine= and run through =\evaluator\psm=, they are kernel objects as
+well. With the =Generative= protocol, a Forth word is a function SQL can call,
+and a PSM function is a word Forth can run.
+
+* Protocol
+A statement ends with a semicolon and may span lines. Each one is answered
+on a line of its own, as an s-expression carrying its SQLSTATE:
+
+#+begin_src lisp
+(completion (sqlstate 00000) (command SELECT) (results ((result (columns ((SNO "CHARACTER VARYING") (QTY INTEGER))) (rows ((S1 300))) (row_count 1)))))
+(exception (sqlstate 42000) (message "column AGE does not exist"))
+#+end_src

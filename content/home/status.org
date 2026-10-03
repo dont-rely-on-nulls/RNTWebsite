@@ -1,0 +1,10 @@
+#+TITLE: Status
+#+WEIGHT: 5
+#+INTRO: Early. APIs will change. What works today, with tests:
+
+- Content-addressed tuple storage on LMDB
+- Prolly-tree indexes
+- Branches, and sessions that pin a snapshot
+- Path lookup across the object tree
+- Substantial and ephemeral relations with pull-based cursors
+- A FOL evaluator with scan and projection

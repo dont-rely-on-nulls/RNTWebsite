@@ -1,0 +1,16 @@
+<header class="menubar">
+  <nav class="menubar__inner wrap" aria-label="Main">
+    <a class="brand" href="{{ site.Home.RelPermalink }}">
+      <img src="{{ "images/rnt-trio.svg" | relURL }}" alt="" width="30" height="29">
+      <span class="brand__name">RNT</span>
+      <span class="brand__tag">Relations, Not Tables</span>
+    </a>
+    <div class="menubar__links">
+      {{- range site.Menus.main }}
+      <a href="{{ if not $.IsHome }}{{ site.Home.RelPermalink }}{{ end }}{{ .URL }}">{{ .Name }}</a>
+      {{- end }}
+      <a href="{{ site.Params.docsURL }}">Docs</a>
+      <a href="{{ site.Params.sourceURL }}">Source</a>
+    </div>
+  </nav>
+</header>

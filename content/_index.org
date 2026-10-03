@@ -1,0 +1,9 @@
+#+TITLE: RNT — Relations, Not Tables
+#+EYEBROW: An experimental database kernel · OCaml · AGPLv3
+#+HEADLINE: Relations, | not tables.
+#+DOCK_LABEL: Six subsystems, one object tree
+
+RNT is a database kernel modeled on Windows NT. The kernel speaks no query
+language. It manages objects — relations, tuples, branches, sessions,
+evaluators — and exposes them through paths, handles and protocols.
+Languages live on top as environment subsystems.

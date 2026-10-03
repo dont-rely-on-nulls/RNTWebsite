@@ -1,0 +1,13 @@
+{{ define "main" }}
+<section class="wrap section section--first">
+  <div class="window window--narrow">
+    {{ partial "titlebar.html" "Not found" }}
+    <div class="window__body notfound">
+      <img src="{{ "images/rnt-trio.svg" | relURL }}" alt="" width="160" height="153">
+      <h1 class="display display--page">No such object.</h1>
+      <p class="lede">Nothing in the tree answers to this path.</p>
+      <a class="btn btn--primary" href="{{ site.Home.RelPermalink }}">Back to the root</a>
+    </div>
+  </div>
+</section>
+{{ end }}

@@ -1,0 +1,26 @@
+{{ define "main" }}
+<article class="wrap section section--first">
+  <div class="window">
+    {{ partial "titlebar.html" (printf "%s — subsystem" .Title) }}
+    <div class="window__body">
+      <p class="crumbs"><a href="{{ site.Home.RelPermalink }}#subsystems">← All subsystems</a></p>
+      <header class="page-head card--{{ .Params.accent }}">
+        {{ with .Params.icon }}<img class="page-head__icon" src="{{ printf "images/%s" . | relURL }}" alt="" width="112" height="120">{{ end }}
+        <div>
+          <h1 class="display display--page">{{ .Title }}</h1>
+          {{ with .Params.tagline }}<p class="card__tag">{{ . }}</p>{{ end }}
+          {{ with .Params.facts }}<p class="page-head__facts">{{ . }}</p>{{ end }}
+          {{ with .Params.homepage }}<p class="page-head__home"><a href="{{ . }}">{{ strings.TrimPrefix "https://" . }} ↗</a></p>{{ end }}
+        </div>
+      </header>
+      <div class="prose">{{ .Content }}</div>
+      {{ if eq .Section "subsystems" }}
+      <nav class="pager" aria-label="Other subsystems">
+        {{ with .PrevInSection }}<a class="pager__link" href="{{ .RelPermalink }}">← {{ .Title }}</a>{{ else }}<span></span>{{ end }}
+        {{ with .NextInSection }}<a class="pager__link" href="{{ .RelPermalink }}">{{ .Title }} →</a>{{ end }}
+      </nav>
+      {{ end }}
+    </div>
+  </div>
+</article>
+{{ end }}

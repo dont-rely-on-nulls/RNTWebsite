@@ -1,0 +1,7 @@
+#+TITLE: Bring your own language.
+#+WINDOW: Subsystems
+#+WEIGHT: 2
+
+An evaluator is just another object that implements the =Evaluator=
+protocol. Each subsystem below is a different answer to the question “what
+should talking to relations feel like?”

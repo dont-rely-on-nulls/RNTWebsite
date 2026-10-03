@@ -1,0 +1,4 @@
+{{- /* Splits a title on "|" into lines: "Relations, | not tables." */ -}}
+{{- range $i, $line := split . "|" -}}
+{{- if $i }}<br>{{ end }}{{ trim $line " " -}}
+{{- end -}}

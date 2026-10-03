@@ -1,0 +1,13 @@
+#+TITLE: Free as | in freedom.
+#+EYEBROW: GNU · Free software
+#+WEIGHT: 6
+
+RNT and Sakura are free software under the GNU Affero General Public
+License, version 3, and Sol under the GNU GPL, version 3. Run them for any
+purpose, study how they work, change them, and share them, with your changes
+or without.
+
+The Affero clause is the part we care most about for a database kernel: run
+a modified RNT as a network service, and everyone who uses it is entitled to
+its source too. Relations should not be locked away, and neither should the
+software that keeps them.

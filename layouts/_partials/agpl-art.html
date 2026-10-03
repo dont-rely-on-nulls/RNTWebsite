@@ -1,0 +1,18 @@
+{{- /* "AGPLv3" in extruded letters standing on an isometric plate. Inline,
+       so the letters are set in the page's IBM Plex Sans. */ -}}
+<svg class="agpl-art" viewBox="20 122 510 140" role="img" aria-labelledby="agpl-art-title">
+  <title id="agpl-art-title">AGPLv3 — GNU Affero General Public License, version 3</title>
+  <ellipse cx="276" cy="252" rx="250" ry="15" fill="#14143A" fill-opacity=".22"/>
+  <g stroke="#23233F" stroke-width="2" stroke-linejoin="round">
+    <path d="M40 232 L480 232 L512 213 L72 213 Z" fill="#F4F4F8"/>
+    <path d="M40 232 L480 232 L480 248 L40 248 Z" fill="#CFCFDC"/>
+    <path d="M480 232 L512 213 L512 229 L480 248 Z" fill="#9A9AB8"/>
+  </g>
+  <text x="260" y="243.5" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" font-weight="600" letter-spacing="2.2" fill="#23233F">GNU AFFERO GENERAL PUBLIC LICENSE · VERSION 3</text>
+  <g font-family="IBM Plex Sans, system-ui, sans-serif" font-size="104" font-weight="700">
+    {{- range seq 12 1 }}
+    <text x="62" y="224" textLength="400" lengthAdjust="spacingAndGlyphs" transform="translate({{ mul . 1.2 }} {{ mul . -0.7 }})" fill="#2F2B78"{{ if eq . 12 }} stroke="#23233F" stroke-width="2" stroke-linejoin="round"{{ end }}>AGPLv3</text>
+    {{- end }}
+    <text x="62" y="224" textLength="400" lengthAdjust="spacingAndGlyphs" stroke="#23233F" stroke-width="2" stroke-linejoin="round"><tspan fill="#E8573B">AGPL</tspan><tspan fill="#F3EA86">v3</tspan></text>
+  </g>
+</svg>

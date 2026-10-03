@@ -1,0 +1,17 @@
+<footer class="footer wrap">
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <img src="{{ "images/rnt-trio.svg" | relURL }}" alt="" width="44" height="42">
+      <div>
+        <p class="footer__name">RNT</p>
+        <p class="footer__tag">Relations, Not Tables</p>
+      </div>
+    </div>
+    <p class="footer__legal">Free software under the GNU AGPL v3. Built with Nix. © {{ now.Year }} RNT contributors, Don’t Rely on Nulls and Symbolic Engineering. Maintained by Marcos Magueta and Estevan Castilho.</p>
+    <div class="footer__links">
+      <a href="{{ site.Params.sourceURL }}">Source</a>
+      <a href="{{ site.Params.docsURL }}">Docs</a>
+      <a href="{{ site.Params.licenseURL }}">License</a>
+    </div>
+  </div>
+</footer>

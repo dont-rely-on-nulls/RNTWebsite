@@ -1,0 +1,57 @@
+# The NT-style layer diagram on the home page. The subsystems row is built
+# from content/subsystems; everything below the native API lives here.
+
+[subsystems]
+label = "Subsystems"
+nt = "≈ Win32 · POSIX · OS/2"
+
+[native_api]
+label = "Native API — paths · handles · protocols"
+nt = "≈ ntdll"
+
+[kernel]
+label = "Kernel"
+nt = "≈ executive"
+  [[kernel.boxes]]
+  name = "Object manager"
+  text = "One tree. Every relation, branch, session and evaluator has a path."
+  [[kernel.boxes]]
+  name = "Protocols"
+  text = "Directory, Enumerable, Cursor, Evaluator — and any you declare."
+  [[kernel.boxes]]
+  name = "Evaluators"
+  paths = ["\\evaluator\\fol", "\\evaluator\\algebra", "\\evaluator\\psm"]
+  [[kernel.boxes]]
+  name = "Branches"
+  text = "Content-addressed tuples in prolly trees. Sessions pin snapshots."
+
+[driver_api]
+label = "Driver interface — narrow dispatch tables"
+nt = "≈ HAL"
+
+# Drivers are delegates: work an evaluator hands off, whatever is behind it.
+[drivers]
+label = "Drivers"
+nt = "≈ device drivers"
+  [[drivers.boxes]]
+  name = "Storage"
+  text = "Where tuples live. One driver per dataset, several active at once."
+  items = ["LMDB", "SQLite", "etcd"]
+  status = "LMDB ships today"
+  [[drivers.boxes]]
+  name = "Compute"
+  text = "Multi-way joins on the GPU, handed off by an evaluator."
+  items = ["Vulkan compute"]
+  status = "planned"
+  style = "planned"
+  [[drivers.boxes]]
+  name = "Network"
+  text = "Relations and evaluators served to the web."
+  items = ["HTTP hosting"]
+  status = "planned"
+  style = "planned"
+  [[drivers.boxes]]
+  name = "Yours"
+  text = "Anything an evaluator should delegate. The kernel never asks what is behind the table."
+  items = ["the sky is the limit"]
+  style = "open"

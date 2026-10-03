@@ -1,0 +1,89 @@
+#+TITLE: Karuta
+#+WEIGHT: 4
+#+TAGLINE: Logic programming on the BEAM
+#+SHORT: Prolog-like logic on the BEAM
+#+ICON: karuta-card.svg
+#+ACCENT: karuta
+#+FACTS: Facts · rules · questions · compiles to BEAM
+#+HOMEPAGE: https://karuta-lang.org
+
+A relational programming language for the BEAM, in the line of Prolog and
+miniKanren. State facts, write rules, ask questions. The compiler, written in
+OCaml, emits BEAM assembly, and a small runtime gives Erlang logic variables
+and backtracking.
+
+#+begin_src prolog
+append[[], [], []].
+append[[], [H | T], [H | T]].
+append[[H | T], [], [H | T]].
+append[[H | Tail], [HS | TS], [H | Mid]] :-
+    append[Tail, [HS | TS], Mid].
+
+append[[1, 2], [3, 4], Out]?
+#+end_src
+
+# more
+
+* Facts, rules, questions
+A predicate is written with square brackets. A clause with =:-= is a rule, a
+clause without one is a fact, and a line ending in =?= is a question, whose
+answer binds the variables it names. Conjunction is a comma, and the
+builtins live in the =karuta= module.
+
+#+begin_src prolog
+minus[InL, InR, Out] :-
+    karuta:neg[InR, MinusInR],
+    karuta:plus[InL, MinusInR, Out].
+
+minus[4, -2, Out], karuta:plus[First, 2, Out]?
+#+end_src
+
+Quoted atoms make readable names for helper predicates:
+
+#+begin_src prolog
+reverse[In, Out] :- 'reverse loop'[In, Out, [], Out].
+
+'reverse loop'[[], [], Out, Out].
+'reverse loop'[[Head | Tail], [Last | Init], Acc, Out] :-
+  'reverse loop'[Tail, Init, [Head | Acc], Out].
+#+end_src
+
+* Relations that persist
+Karuta's own facts live in the BEAM. Relations that should outlive a node
+are declared to Sakura, inside a module, and queried like any other
+predicate:
+
+#+begin_src prolog
+:- module[public] {
+  :- sakura:persisted {
+    relation[Name].
+    attribute[Relation_name, Attr_name, Domain_name].
+  }.
+}.
+#+end_src
+
+#+begin_src prolog
+:- import[db].
+
+db:public:attribute['public:function_predicate', Attr, Domain]?
+#+end_src
+
+* In the same runtime
+A persisted relation is a kernel object like any other. It has a path in
+RNT’s tree, so the tuples a Karuta program asserts are the tuples pureSQL
+selects and Forth reads with =OPEN-RELATION=, and the other way around: a
+Karuta rule can range over the shipments pureSQL serves or the stack of a
+running Forth.
+
+Predicates are relations too. Once the shared =Generative= protocol lands,
+a Karuta predicate with a bound mode is something pureSQL can call in a
+select list, and a pureSQL routine is something a Karuta rule can ask.
+
+The road there, from Karuta’s side: AST nodes and directives for Sakura,
+runtime support for talking to the database, and folding several queries
+into a single predicate body.
+
+* Where to go next
+The language has its own home at [[https://karuta-lang.org][karuta-lang.org]], with the story behind
+its name told in karuta cards. The source is at
+[[https://github.com/dont-rely-on-nulls/karuta][github.com/dont-rely-on-nulls/karuta]].
