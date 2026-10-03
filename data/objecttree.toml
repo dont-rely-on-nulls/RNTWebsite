@@ -22,6 +22,18 @@ open = true
   [[nodes.rows]]
   name = "EGG"
   by = "aleph"
+  [[nodes.rows]]
+  name = "PANE"
+  by = "shoji"
+  [[nodes.rows]]
+  name = "SOLUTION"
+  by = "tangram"
+  [[nodes.rows]]
+  name = "LENS"
+  by = "kintsugi"
+  [[nodes.rows]]
+  name = "FORTUNE"
+  by = "omikuji"
 
 [[nodes]]
 path = "\\evaluator"
@@ -32,6 +44,12 @@ open = true
   [[nodes.rows]]
   name = "algebra · psm"
   by = "puresql"
+  [[nodes.rows]]
+  name = "array"
+  by = "soroban"
+  [[nodes.rows]]
+  name = "solve"
+  by = "tangram"
 
 [[nodes]]
 path = "\\routine"
@@ -41,3 +59,13 @@ path = "\\session"
 
 [[nodes]]
 path = "\\branch"
+
+[[nodes]]
+path = "\\application"
+open = true
+  [[nodes.rows]]
+  name = "chess · go"
+  by = "application"
+  [[nodes.rows]]
+  name = "shogi · mahjong"
+  by = "application"

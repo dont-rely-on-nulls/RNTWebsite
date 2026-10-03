@@ -1,0 +1,100 @@
+#+TITLE: Tangram
+#+WEIGHT: 10
+#+TAGLINE: Find the tuples that fit
+#+SHORT: Constraint solving into relations
+#+ICON: tangram-pieces.svg
+#+ACCENT: tangram
+#+FACTS: Choose · forbid · prefer · every answer is a branch
+
+A solver. Every other subsystem asks which tuples are there; Tangram asks
+which tuples /could/ be. You say what may be chosen, what is forbidden and
+what is preferred, and Tangram searches for a set of tuples that fits, then
+commits it to a branch, where you can look at it before anything is merged.
+
+#+begin_src tangram
+-- every shift gets two people from the staff
+choose ROTA(shift: s, person: p)
+  for each SHIFT(id: s)
+  exactly 2 from STAFF(name: p).
+
+-- nobody works two shifts on the same day
+forbid ROTA(shift: a, person: p) and ROTA(shift: b, person: p)
+   and SHIFT(id: a, day: d) and SHIFT(id: b, day: d) and a != b.
+
+-- juniors take as few nights as possible
+prefer fewest ROTA(shift: s, person: p) and NIGHT(id: s) and JUNIOR(name: p).
+
+solve into rota-week-41.
+#+end_src
+
+# more
+
+* Why a tangram
+A tangram is seven flat pieces and a silhouette. The puzzle never tells you
+where a piece goes, only what the finished shape must be: every piece used,
+none overlapping, the outline filled. Tangram programs are written the same
+way. They describe the shape of an answer, never the steps to find it.
+
+* Choose, forbid, prefer
+Formulas are built from the same atoms as Aleph’s, =ROTA(shift: s, person:
+p)=, joined with =and=, =or=, =not= and comparisons. Around them, four
+statements:
+
+| Statement                                  | Says                                           |
+|--------------------------------------------+------------------------------------------------|
+| =choose R(…) for each … exactly n from …=    | the tuples the solver may add; also =at least n= and =at most n= |
+| =forbid φ=                                   | no answer may make φ true                      |
+| =prefer fewest φ=, =prefer most φ=             | rank the answers by how many ways φ holds      |
+| =solve into b=                               | search, and commit the best answer to branch =b= |
+
+=choose= is the only statement that makes tuples. Everything else narrows the
+answers down or ranks them, so a Tangram program reads as a list of
+everything that has to be true.
+
+* Every answer is a branch
+=solve= forks the branch it runs on, writes the chosen tuples into it and
+commits. The answer is not a printout: it is the database as it would be,
+which every subsystem can read, and which nobody else sees until it is
+merged.
+
+#+begin_src tangram
+-- three good rotas, to compare side by side
+solve 3 into rota-options.
+#+end_src
+
+That makes =rota-options/1=, =/2= and =/3=. Prolly trees make comparing them
+cheap, the difference between two answers is a branch diff, and the one you
+want is merged like any other branch.
+
+* Why every search ends
+Before it searches, Tangram grounds the program: it replaces every variable
+with the values the relations actually hold. Relations are finite, so there
+are finitely many tuples =choose= could add, and finitely many answers to
+look through. Every search ends.
+
+Some searches are long, because the problems are hard. =within= bounds the
+time and commits the best answer found so far, and every solve records
+whether its answer was proven best:
+
+#+begin_src tangram
+solve into rota-week-41 within 30s.
+#+end_src
+
+* Constraints you already wrote
+A commit that breaks an Aleph =require=, a Sakura integrity rule or a key
+would be refused, so Tangram reads all of them as =forbid= before it starts.
+An answer that could never be merged is never offered.
+
+* In the same runtime
+The relations a program chooses from are anyone’s. =STAFF= can be a pureSQL
+view, =NIGHT= a Dandelion bundle and =JUNIOR= a Sol relation, and each solve
+leaves a tuple in =SOLUTION=:
+
+#+begin_src sql
+-- from pureSQL: which rotas were proven best, and what they cost
+SELECT BRANCH, COST, PROVEN FROM SOLUTION ORDER BY COST;
+#+end_src
+
+A pureSQL session on =rota-week-41= reads =ROTA= like any other relation, and
+a Shoji window opened there shows the week’s rota as a form a manager can
+correct by hand before the merge.

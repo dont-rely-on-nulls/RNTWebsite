@@ -56,3 +56,30 @@ code[data-lang="dandelion"] .hl-string { color: #F9B3C9; }
 .hl-al-label { color: #B9B9D6; }
 .hl-al-hash { color: #FFC685; }
 code[data-lang="aleph"] .hl-string { color: #F9B3C9; }
+
+/* Soroban: columns are named things, primitives are the verbs. */
+.hl-so-name { color: #9DB8F5; font-weight: 700; }
+.hl-so-column { color: #A9E2C5; font-weight: 600; }
+.hl-so-adverb { color: #56b6c2; font-weight: 700; }
+.hl-so-word { color: #c9a3f5; }
+.hl-so-op { color: #F4A08A; }
+code[data-lang="soroban"] .hl-string { color: #F9B3C9; }
+
+/* Tangram: the four statements and the words that shape them. */
+.hl-tg-statement { color: #D6B3F5; font-weight: 700; }
+.hl-tg-modifier { color: #9DB8F5; }
+code[data-lang="tangram"] .hl-string { color: #F9B3C9; }
+
+/* Kintsugi: steps in gold, like the seams. */
+.hl-ki-statement { color: #9DB8F5; font-weight: 700; }
+.hl-ki-step { color: #F0BE3C; font-weight: 700; }
+.hl-ki-word { color: #B9B9D6; }
+.hl-ki-version { color: #FFC685; }
+.hl-ki-name { color: #A9E2C5; }
+code[data-lang="kintsugi"] .hl-string { color: #F9B3C9; }
+
+/* Omikuji: chances stand out. */
+.hl-om-statement { color: #F2A6DE; font-weight: 700; }
+.hl-om-modifier { color: #9DB8F5; }
+.hl-om-chance { color: #FFC685; font-weight: 600; }
+code[data-lang="omikuji"] .hl-string { color: #F9B3C9; }

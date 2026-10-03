@@ -1,0 +1,15 @@
+#+TITLE: Programs, | not personalities.
+#+WINDOW: Applications
+#+WEIGHT: 3
+
+On NT, Notepad is a Win32 program and =ls= was a POSIX one: applications sit
+above the subsystems and borrow their personalities. RNT has the same top
+layer, with one difference. An NT program belongs to one subsystem; an RNT
+application can use several at once, because they all meet in the same
+object tree.
+
+An application has no language of its own. It is a package of relations,
+routines and constraints under =\application=, installed by merging a branch
+and removed by reverting it. Four games show the idea: in each one the
+position is relations, a move is a commit, and taking a move back is
+checking out the commit before it.

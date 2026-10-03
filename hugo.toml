@@ -33,10 +33,14 @@ disableKinds = ["taxonomy", "term", "RSS"]
     url = "#subsystems"
     weight = 2
   [[menus.main]]
+    name = "Applications"
+    url = "#applications"
+    weight = 3
+  [[menus.main]]
     name = "Object tree"
     url = "#object-tree"
-    weight = 3
+    weight = 4
   [[menus.main]]
     name = "Kernel"
     url = "#kernel"
-    weight = 4
+    weight = 5

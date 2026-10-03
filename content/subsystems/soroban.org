@@ -1,0 +1,114 @@
+#+TITLE: Soroban
+#+WEIGHT: 8
+#+TAGLINE: Whole columns at a time
+#+SHORT: An array language for numbers in bulk
+#+ICON: soroban-beads.svg
+#+ACCENT: soroban
+#+FACTS: Columns · reduce and scan · history as an axis · fused on the GPU
+
+An array language for the numeric work queries are bad at. Soroban reads a
+relation’s attributes as columns, applies every operation to a whole column
+at once, and hands the result back as a relation. Expressions read right to
+left, as in APL, and there is no loop to write.
+
+#+begin_src soroban
+-- how much each supplier ships, as a share of the total
+qty:   SP.QTY
+total: +/ qty
+SHARE: (+/ qty by SP.SNO) % total
+
+-- the shipments above average
+big: SP where qty > avg qty
+#+end_src
+
+# more
+
+* Why a soroban
+A soroban is a Japanese abacus: a frame of rods, each rod a column of
+beads, each column a digit that keeps its place. One move of the hand
+pushes a whole column at once. Practised users stop needing the frame and
+calculate by picturing the beads. Soroban wants you to picture columns the
+same way, and to stop thinking in rows.
+
+* Columns, not rows
+=SP.QTY= is the =QTY= attribute of =SP= as a column: every value at once,
+one after another. Arithmetic, comparison and every other primitive work on
+whole columns, element by element, so =SP.QTY * SP.PRICE= is every line’s
+value in one expression.
+
+A relation has no order and an array has one, so Soroban borrows one: a
+column comes out in the order of its relation’s key, and every column of the
+same relation comes out in the same order. That is what pairs the right
+numbers. When a result goes back into the tree, the order is dropped again
+and only the tuples remain.
+
+| Value                       | Shape                                     |
+|-----------------------------+-------------------------------------------|
+| =3100=                        | a scalar                                  |
+| =SP.QTY=                      | a column: one value per tuple             |
+| =SP=                          | a relation: its columns side by side      |
+| =SP.QTY over main~30..main=   | a column through time: one row per commit |
+
+* Right to left
+There is no precedence. A function takes everything to its right as its
+argument, so =2 * 3 + 4= is 14, and a line reads like a sentence: “sum of
+quantity by supplier, divided by the total”.
+
+| Primitive          | Does                                              |
+|--------------------+---------------------------------------------------|
+| =+ - * %=            | arithmetic, element by element (=%= divides)        |
+| =< <= = >= >=        | comparison, giving 1 or 0 for each element        |
+| =f/=                 | reduce: =+/= sums a column, =max/= takes its largest  |
+| =f\=                 | scan: =+\= is the running total                     |
+| =#=                  | count                                             |
+| =x where b=          | the rows of =x= where =b= is 1                        |
+| =f x by k=           | =f= applied to each group of =x= with the same =k=      |
+| =asc=, =desc=          | sorted                                            |
+| =avg=, =deltas=        | the mean; each element minus the one before it    |
+
+#+begin_src soroban
+-- the running total of shipments, largest first
++\ desc SP.QTY
+#+end_src
+
+* History is an axis
+Every commit is a state of every relation, so a column has a history, and
+Soroban can read it. =over= takes a range of commits and adds a dimension:
+one row per commit, one column per tuple, matched by key.
+
+#+begin_src soroban
+-- stock levels over the last thirty commits, and how they moved
+levels: STOCK.LEVEL over main~30..main
+moves:  deltas levels
+WORST:  min/ moves by STOCK.SKU
+#+end_src
+
+A tuple that did not exist yet at some commit leaves an empty cell, and
+reductions skip it. Prolly trees make neighbouring commits cheap to compare,
+so a range of thirty commits costs about thirty differences, not thirty
+copies.
+
+Aleph asks /when/ something held across commits; Soroban asks /how much/.
+=WORST= is a relation, so an Aleph =require= can constrain it like any other.
+
+* Fused on the GPU
+A line of Soroban is one plan. Element-by-element operations fuse into a
+single pass, and reductions and scans are parallel prefix computations,
+which is the work GPUs are built for. With the Compute driver loaded, a line
+becomes one Vulkan compute dispatch over columns already in device memory;
+without it, the same plan runs on the CPU. Soroban is the subsystem the
+Compute driver was planned for.
+
+* In the same runtime
+A name in capitals is published under =\relation=, and a lowercase name
+lives only in the session. =SHARE= at the top of this page is a relation
+with the attributes =SNO= and =QTY=, so:
+
+#+begin_src sql
+-- from pureSQL: the suppliers with more than a fifth of the volume
+SELECT SNO, QTY FROM SHARE WHERE QTY > 0.2;
+#+end_src
+
+Any relation is a set of columns, wherever it came from. =+/ MEMORY.CELL=
+sums a running Forth machine’s memory, and =# EGG.PROMISE by EGG.PROMISE=
+counts Aleph’s open promises, one count for each.

@@ -1,0 +1,19 @@
+#+TITLE: Mahjong
+#+WEIGHT: 4
+#+ICON: mahjong-tiles.svg
+#+TAGLINE: Four sessions, four hidden hands
+#+USES: omikuji karuta
+
+Four players are four sessions, and each sees its own hand and nobody
+else’s: hidden information is just a question of who may read which
+tuples. Karuta decides whether a hand is complete, four sets and a pair,
+and Omikuji says how likely it is that the tile you are waiting for is
+still in the wall.
+
+#+begin_src omikuji
+-- an unseen tile is equally likely to be anywhere unseen
+weigh WALL(tile: t) by UNSEEN(tile: t, copies: n, hidden: h) as n / h.
+
+-- is my wait still live?
+ask chance WALL(tile: '5-pin').
+#+end_src

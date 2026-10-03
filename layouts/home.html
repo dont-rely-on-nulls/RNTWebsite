@@ -107,6 +107,41 @@
 </section>
 {{ end }}
 
+{{ with site.GetPage "/home/applications" }}
+{{- $apps := (site.GetPage "/home/apps").Pages.ByWeight }}
+<section id="applications" class="wrap section">
+  <div class="window">
+    {{ partial "titlebar.html" (printf "%s — %d items" .Params.window (len $apps)) }}
+    <div class="window__body">
+      <h2 class="display">{{ partial "lines.html" .Title }}</h2>
+      <div class="lede">{{ .Content }}</div>
+      <div class="cards">
+        {{- range $apps }}
+        <article id="app-{{ .File.ContentBaseName }}" class="card card--app">
+          <div class="card__head">
+            <img class="card__icon" src="{{ printf "images/%s" .Params.icon | relURL }}" alt="" width="68" height="72">
+            <div>
+              <h3 class="card__title">{{ .Title }}</h3>
+              <p class="card__tag">{{ .Params.tagline }}</p>
+            </div>
+          </div>
+          <p class="app__uses"><span class="app__label">Uses</span>
+            {{- range split .Params.uses " " }}
+            {{- with site.GetPage (printf "/subsystems/%s" .) }}
+            <a class="app__chip" href="{{ .RelPermalink }}"><img src="{{ printf "images/%s" .Params.icon | relURL }}" alt="" width="20" height="21">{{ .Title }}</a>
+            {{- end }}
+            {{- end }}
+          </p>
+          <div class="card__body">{{ .Content }}</div>
+          <div class="card__foot"><span>\application\{{ .File.ContentBaseName }}</span></div>
+        </article>
+        {{- end }}
+      </div>
+    </div>
+  </div>
+</section>
+{{ end }}
+
 {{ with site.GetPage "/home/object-tree" }}
 <section id="object-tree" class="wrap section">
   <div class="window">

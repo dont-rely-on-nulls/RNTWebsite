@@ -1,0 +1,111 @@
+#+TITLE: Omikuji
+#+WEIGHT: 12
+#+TAGLINE: Every tuple has its fortune
+#+SHORT: Probabilistic relations
+#+ICON: omikuji-box.svg
+#+ACCENT: omikuji
+#+FACTS: Weighted tuples · possible worlds · exact or drawn · given
+
+A probabilistic subsystem. Omikuji lets a tuple be likely instead of true:
+each uncertain tuple carries a chance, and a question returns its answers
+together with how likely each one is, across every world the uncertain
+tuples could make.
+
+#+begin_src omikuji
+-- each link is up as often as it has been
+weigh LINK(src: a, dst: b) by UPTIME(src: a, dst: b, ratio: r) as r.
+
+-- how likely is the edge reachable from the core?
+ask chance REACH(origin: 'core-1', dest: 'edge-9').
+
+-- and if the link to core-2 is down?
+ask chance REACH(origin: 'core-1', dest: 'edge-9')
+  given not LINK(src: 'core-1', dst: 'core-2').
+#+end_src
+
+# more
+
+* Why omikuji
+At a Japanese shrine you shake a wooden box until one numbered stick falls
+out, and the number gives you a paper fortune, from great blessing to
+great curse. A fortune is a chance you can draw. Omikuji keeps the box for
+every uncertain tuple, and lets you ask what the draws add up to.
+
+* Weights
+=weigh= gives a relation’s tuples a chance, either a constant or one computed
+from data, like the uptime above. Weighed tuples are independent of each
+other. When exactly one of several tuples must hold, =either= says so:
+
+#+begin_src omikuji
+weigh LINK(src: 'core-1', dst: 'core-2') as 0.98.
+
+either STATUS(parcel: x, is: 'late') 0.2
+    or STATUS(parcel: x, is: 'lost') 0.01
+    otherwise STATUS(parcel: x, is: 'on time')
+  for each PARCEL(id: x).
+#+end_src
+
+Weights are kept beside the data, in =FORTUNE (RELATION, TUPLE, CHANCE)=,
+never inside it: =LINK= still holds the same tuples, and every other
+subsystem goes on reading it as it always did.
+
+* Possible worlds
+Each uncertain tuple is either in or out. One choice for every tuple is a
+world, and the chance of a world comes from the weights. A question is
+answered in every world at once, and an answer’s chance is the sum over the
+worlds where it is an answer.
+
+| Ask                  | Returns                                             |
+|----------------------+-----------------------------------------------------|
+| =ask chance φ=         | the probability that φ holds                        |
+| =ask φ=                | the answers, each with a =CHANCE= attribute           |
+| =ask … given ψ=        | the same, in the worlds where ψ holds               |
+| =ask likeliest φ=      | the single most probable world in which φ holds     |
+| =draw n φ=             | =n= worlds drawn at random, with each answer’s count  |
+
+* Exact, or drawn
+Omikuji answers exactly when it can. It keeps the lineage of every answer,
+the uncertain tuples it depends on, and compiles that into a decision
+diagram whose probability is quick to read off. The number of worlds is
+finite, so every question ends, but it can be very large; for those,
+=draw= samples worlds and reports each chance with its margin of error.
+
+#+begin_src omikuji
+draw 10000 REACH(origin: 'core-1', dest: e).
+#+end_src
+
+* Rules come from elsewhere
+Omikuji has no rule language of its own, and needs none. =REACH= above is a
+Dandelion bundle:
+
+#+begin_src dandelion
+Network:
+  Router  key   NAME.
+  LINK    from  SRC.
+  LINK    to    DST.
+
+REACH:
+  ?ORIGIN  LINK+  ?DEST.
+#+end_src
+
+Omikuji follows the lineage through the closure, so the chance that one
+link is down becomes the chance that a whole region is cut off. The same
+works for pureSQL views, Sakura relations and Karuta predicates: anything
+that reads uncertain tuples has uncertain answers, and Omikuji knows how
+uncertain.
+
+* In the same runtime
+An =ask= can be named, and its answers are published under =\relation= with
+their =CHANCE=:
+
+#+begin_src omikuji
+ODDS: ask REACH(origin: 'core-1', dest: e).
+#+end_src
+
+#+begin_src sql
+-- from pureSQL: the edges we are least sure we can reach
+SELECT DEST, CHANCE FROM ODDS WHERE CHANCE < 0.99 ORDER BY CHANCE;
+#+end_src
+
+Aleph’s eggs can be weighed too, and then =ask chance= on =EGG= says how likely
+a promise is to hatch before its deadline.

@@ -1,0 +1,23 @@
+#+TITLE: Go
+#+WEIGHT: 2
+#+ICON: go-board.svg
+#+TAGLINE: Groups are closures
+#+USES: dandelion soroban
+
+Every point is a tuple of =POINT (AT, COLOUR)=, and the grid is a relation
+of neighbours. A group is a Dandelion closure over neighbours of the same
+colour, its liberties are the empty points it touches, and a group left
+without any is taken off in the same commit. Ko is a hash the game has seen
+before, and Soroban sums influence across the board for the score.
+
+#+begin_src dandelion
+ally:
+  ?A  NEXT    ?B.
+  ?A  COLOUR  _c.
+  ?B  COLOUR  _c.
+
+? liberties of the group at D4:
+  'D4'    ally*   _s.
+  _s      NEXT    ?POINT.
+  ?POINT  COLOUR  'empty'.
+#+end_src

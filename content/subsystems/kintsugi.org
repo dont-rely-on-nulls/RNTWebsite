@@ -1,0 +1,82 @@
+#+TITLE: Kintsugi
+#+WEIGHT: 11
+#+TAGLINE: Mend schemas across branches
+#+SHORT: Two-way lenses for schema change
+#+ICON: kintsugi-bowl.svg
+#+ACCENT: kintsugi
+#+FACTS: Lenses · forward and back · nothing lost · merges across versions
+
+A language for changing a schema without breaking what depends on it. A
+Kintsugi lens describes a change step by step, and every step runs both
+ways: forward, from the old shape to the new one, and back, carrying edits
+made in the new shape to the old one. Branches on different versions read
+each other through the lens, and merge through it.
+
+#+begin_src kintsugi
+lens names-split for S from v1 to v2:
+  rename SNAME to NAME
+  split NAME on ' ' into FIRST, LAST
+  add COUNTRY default 'UK'
+  drop STATUS into S_STATUS.
+#+end_src
+
+# more
+
+* Why kintsugi
+Kintsugi is the craft of mending broken pottery with lacquer and gold. The
+break is not hidden; it becomes the most visible part of the bowl, and the
+bowl is whole again. A schema change is a break too. Kintsugi does not
+pretend it did not happen: it writes down exactly where the break is, and
+joins both sides.
+
+* Steps that run both ways
+A lens is a list of steps. Forward, it is read from the top; back, from the
+bottom, with every step undone.
+
+| Step                       | Forward                                    | Back                          |
+|----------------------------+--------------------------------------------+-------------------------------|
+| =rename A to B=              | renames the attribute                      | renames it back               |
+| =add A default v=            | adds =A=, set to =v=                           | removes =A=                     |
+| =drop A into R=              | removes =A=, keeping its values in =R=         | restores =A= from =R=             |
+| =split A on s into B, C=     | splits each value at the first =s=           | joins =B=, =s= and =C=              |
+| =move A, B to R by K=        | moves attributes into a new relation keyed by =K= | joins them back            |
+| =convert A by f, g=          | applies =f=                                  | applies =g=                     |
+
+* Nothing is lost
+A lens has to obey two laws. Reading through it and writing back what you
+read changes nothing. Writing through it and reading back gives what you
+wrote. Every step above keeps both, so every list of steps does too.
+
+That is why =drop= needs =into=: a step that would throw values away is
+refused, and the values have to go somewhere you can see. It is the gold in
+the seam. =split= cuts at the first separator only, so the rest of a long
+name stays in =LAST= and joins back exactly. For =convert=, Sol proves that
+=g= undoes =f= before the lens is accepted.
+
+* Branches on different versions
+Every relation knows its versions, and every session reads the version its
+branch is on. Say =main= is on =v1= and =next= is on =v2=: a session on =next=
+sees =S= with =FIRST=, =LAST= and =COUNTRY=, including the tuples that are
+still stored the =v1= way, read forward through the lens. A session on =main=
+sees =next='s edits backwards, in the shape it expects.
+
+Merging works the same way. Merging =next= into =main= carries each change back
+through the lens, so a migration is one merge, not a script, and both
+branches stay usable for as long as anyone needs the old shape.
+
+#+begin_src kintsugi
+-- once every reader has moved on, keep only the new shape
+retire v1 of S.
+#+end_src
+
+* In the same runtime
+A Forth word written against =v1= keeps working after the change: it opens
+=S=, the lens serves it =SNAME=, and what it writes goes back through the same
+lens. Nothing in the other subsystems has to know a lens exists.
+
+Lenses are stored as relations, one tuple per step:
+
+#+begin_src sql
+-- from pureSQL: every change ever made to S, in order
+SELECT LENS, SOURCE, TARGET, STEP FROM LENS WHERE RELATION = 'S' ORDER BY POSITION;
+#+end_src

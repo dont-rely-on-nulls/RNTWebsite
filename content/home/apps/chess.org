@@ -1,0 +1,21 @@
+#+TITLE: Chess
+#+WEIGHT: 1
+#+ICON: chess-knight.svg
+#+TAGLINE: Moves in Karuta, memory in Aleph
+#+USES: karuta aleph
+
+The board is a relation, =PIECE (SQUARE, KIND, SIDE)=. Karuta generates the
+legal moves, the way Prolog has always played chess, and Aleph remembers
+what a position cannot: castling rights, en passant and the fifty-move rule.
+Positions are content-addressed, so a threefold repetition is the same hash
+turning up for the third time.
+
+#+begin_src prolog
+knight[[F, R], [F2, R2]] :-
+    jump[DF, DR],
+    karuta:plus[F, DF, F2], karuta:plus[R, DR, R2],
+    board[F2, R2].
+
+jump[1, 2]. jump[2, 1]. jump[-1, 2]. jump[-2, 1].
+jump[1, -2]. jump[2, -1]. jump[-1, -2]. jump[-2, -1].
+#+end_src

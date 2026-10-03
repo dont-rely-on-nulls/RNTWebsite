@@ -40,7 +40,7 @@ nt = "≈ device drivers"
   status = "LMDB ships today"
   [[drivers.boxes]]
   name = "Compute"
-  text = "Multi-way joins on the GPU, handed off by an evaluator."
+  text = "Multi-way joins and Soroban's array lines on the GPU, handed off by an evaluator."
   items = ["Vulkan compute"]
   status = "planned"
   style = "planned"

@@ -1,0 +1,18 @@
+#+TITLE: Shogi
+#+WEIGHT: 3
+#+ICON: shogi-piece.svg
+#+TAGLINE: Captured pieces change sides
+#+USES: aleph tangram
+
+A capture moves a tuple from =PIECE= into the captor’s =HAND=, and a drop
+moves it back onto the board, on the other side. The rules that make shogi
+shogi are requirements the kernel checks on every move, and tsume problems,
+mate in /n/ from a given position, are a search Tangram runs into one
+branch per solution.
+
+#+begin_src aleph
+-- nifu: never two unpromoted pawns of one side on a file
+require nifu:
+  always not (PIECE(at: a, kind: 'pawn', side: s, file: f)
+          and PIECE(at: b, kind: 'pawn', side: s, file: f) and a != b)
+#+end_src

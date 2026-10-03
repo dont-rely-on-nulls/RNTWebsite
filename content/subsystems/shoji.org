@@ -1,0 +1,120 @@
+#+TITLE: Shoji
+#+WEIGHT: 9
+#+TAGLINE: Ask by filling in the blanks
+#+SHORT: Query by example, in windows
+#+ICON: shoji-screen.svg
+#+ACCENT: shoji
+#+FACTS: Skeletons · example elements · P. I. U. D. · no grammar to learn
+
+Query by example for RNT, and the only subsystem with no syntax to learn.
+Shoji opens a relation as an empty skeleton, a window with its heading and
+a blank row, and you ask a question by filling the blanks in with what an
+answer would look like.
+
+#+begin_src shoji
+S  | SNO | SNAME | CITY
+   | _s  | P.    | London
+
+SP | SNO | PNO
+   | _s  | P2
+#+end_src
+
+# more
+
+* Why a shoji
+A shoji is a sliding screen: paper panes held in a wooden lattice, a grid
+you can almost see through. A skeleton is the same thing. The lattice is the
+relation’s heading, the panes are blanks, and whatever you write in a pane
+says what you are looking for.
+
+* Skeletons
+The example above asks for the names of the suppliers in London that ship
+part P2. Nothing in it is a keyword. Each pane holds one of a few kinds of
+entry:
+
+| Entry                 | Means                                                  |
+|-----------------------+--------------------------------------------------------|
+| =London=, =P2=, =300=     | a constant: the row must have this value               |
+| =_s=                    | an example element, underlined on screen: any value, but the same one everywhere it appears |
+| =>200=, =<>London=      | a condition                                            |
+| =P.=                    | print: show this attribute in the answer               |
+| =G.=                    | group by this attribute                                |
+| =CNT.=, =SUM.=, =AVG.=    | an aggregate over the group                            |
+
+The notation is Moshé Zloof’s, from IBM’s Query-by-Example in the 1970s, and
+it has hardly needed to change. An example element is how two skeletons
+join: =_s= appears under =SNO= in both windows, so the supplier and the
+shipment must agree.
+
+When a condition needs more than one pane, it goes in a condition box:
+
+#+begin_src shoji
+SP | SNO | PNO | QTY
+   | P.  | _p  | _q
+
+CONDITIONS
+_q > 200 and _q < 400
+#+end_src
+
+* Changing things
+The leftmost pane of a row, under the relation’s name, holds a command for
+the whole row: =I.= inserts, =D.= deletes, =U.= updates. A row with a command
+and constants is a change; a row with a command and example elements changes
+every row the examples match.
+
+#+begin_src shoji
+S  | SNO | STATUS
+U. | S1  | 30
+
+SP | SNO | PNO
+D. | S4  | _p
+#+end_src
+
+A skeleton with =I.= and empty panes is a form. Every relation has one, so
+people who never write a query can still put data in, and the integrity
+rules of every other subsystem still apply to what they enter.
+
+* Your own skeletons
+A window can be given a heading of your own. Fill it with =I.= and example
+elements from the other windows, and the answers become a new relation:
+
+#+begin_src shoji
+S     | SNO | SNAME
+      | _s  | _n
+
+SP    | SNO | QTY
+      | _s  | >300
+
+HEAVY | SUPPLIER
+I.    | _n
+#+end_src
+
+=HEAVY= is published under =\relation=, and Shoji keeps the question that
+made it, so it can be asked again.
+
+* Skeletons are relations
+A saved question is stored the way it looks: one tuple per filled pane, in
+=PANE (QUESTION, RELATION, ROW, ATTRIBUTE, ENTRY)=. So the questions people
+have asked are themselves something to ask about:
+
+#+begin_src shoji
+PANE | QUESTION | ATTRIBUTE
+     | P.       | CITY
+#+end_src
+
+That is every saved question that looks at a city.
+
+* In the same runtime
+Any relation opens as a skeleton, whoever made it. Open =EGG= to see Aleph’s
+open promises, open =STACK= and you are looking at a running Forth machine,
+open a Dandelion bundle and its answers are rows like any others.
+
+#+begin_src shoji
+EGG | PROMISE     | LAID
+    | orders-ship | P.
+#+end_src
+
+#+begin_src sql
+-- from pureSQL: what the HEAVY window found
+SELECT SUPPLIER FROM HEAVY;
+#+end_src
