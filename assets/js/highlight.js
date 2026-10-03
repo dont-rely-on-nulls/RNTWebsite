@@ -34,7 +34,20 @@
     ["dl-period", /\.(?=\s|$)/y]
   ];
 
-  var grammars = { sol: sol, dandelion: dandelion };
+  // Aleph: statements, temporal operators and relation atoms.
+  var aleph = [
+    ["comment", /--[^\n]*/y],
+    ["string", /'(?:[^'\\\n]|\\.)*'/y],
+    ["al-statement", /(?:require|promise|ask|at)\b/y],
+    ["al-temporal", /(?:previously|once|historically|since|next|eventually|always|until)(?:<=[0-9]+)?\b/y],
+    ["al-logic", /(?:and|or|not)\b|->/y],
+    ["al-relation", /[A-Z][A-Z0-9_]*(?=\()/y],
+    ["al-label", /[a-z][a-z0-9_]*(?=:)/y],
+    ["al-hash", /#[0-9a-f]+…?|~[0-9]+/y],
+    ["sol-number", /-?[0-9]+\b/y]
+  ];
+
+  var grammars = { sol: sol, dandelion: dandelion, aleph: aleph };
   var word = /[A-Za-z0-9_]+/y;
 
   function escape(s) {

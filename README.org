@@ -1,7 +1,7 @@
 #+TITLE: RNT website
 
 The website for [[../RNT][RNT]], /Relations, Not Tables/, and its environment
-subsystems: Sakura, pureSQL, Forth, Karuta, Sol and Dandelion. It is a [[https://gohugo.io][Hugo]] site whose
+subsystems: Sakura, pureSQL, Forth, Karuta, Sol, Dandelion and Aleph. It is a [[https://gohugo.io][Hugo]] site whose
 content is written in org mode; Hugo renders =.org= files itself, so no
 Emacs export step is involved.
 

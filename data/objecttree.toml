@@ -19,6 +19,9 @@ open = true
   [[nodes.rows]]
   name = "REGISTERS"
   by = "forth"
+  [[nodes.rows]]
+  name = "EGG"
+  by = "aleph"
 
 [[nodes]]
 path = "\\evaluator"

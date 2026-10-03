@@ -1,0 +1,146 @@
+#+TITLE: Aleph
+#+WEIGHT: 7
+#+TAGLINE: Temporal logic over every commit
+#+SHORT: Temporal queries and constraints
+#+ICON: aleph-eggs.svg
+#+ACCENT: aleph
+#+FACTS: Once · since · always · eventually · promises are eggs
+
+A temporal modal logic for asking about time and constraining it. A branch’s
+commits are the moments of a timeline that never has to end; Aleph asks what
+was true across them, refuses commits that would break the past, and keeps
+track of promises about the future until they are kept.
+
+#+begin_src aleph
+-- a shipped part must have existed when it shipped
+require parts-exist:
+  always (SP(sno: s, pno: p) -> once P(pno: p))
+
+-- every order ships within ten commits of being placed
+promise orders-ship:
+  always (ORDER(id: o) -> eventually<=10 SHIPPED(id: o))
+
+ask once S(sno: s, city: 'Paris') at main.
+#+end_src
+
+# more
+
+* Why ℵ₀
+The icon is three symbols, and each one is part of the language.
+
+- ℵ₀ :: the size of the natural numbers. Temporal logic reasons about
+  timelines of states that go on without end, s₀, s₁, s₂, …, and such a
+  timeline has exactly ℵ₀ moments.
+- δ :: a single step along the timeline: one commit, the difference between
+  a state and the next. Everything Aleph checks, it checks from the δ.
+- The eggs :: what has not hatched yet. A promise about the future lays an
+  egg; the egg hatches when the promise is kept, and spoils when its deadline
+  passes.
+
+* Time is commits
+RNT already keeps the history Aleph needs. Every state of a relation has a
+hash, and a branch is a sequence of those states, so the moments of Aleph’s
+timeline are a branch’s commits and /now/ is its tip. Prolly trees make the
+difference between two neighbouring states cheap to compute, which is why
+every operator below can be checked one δ at a time instead of replaying
+history.
+
+An =at= clause picks the timeline and the moment:
+
+| Clause        | Means                                 |
+|---------------+---------------------------------------|
+| =at main=       | the tip of =main=                       |
+| =at main~3=     | three commits before the tip          |
+| =at #9f2c…=     | the state with that hash, on any branch |
+
+* Looking back
+Formulas are built from relation atoms with named attributes — =S(sno: s,
+city: 'Paris')= — joined with =and=, =or=, =not= and =->=. The past operators
+look along the history behind the moment a formula is asked at:
+
+| Operator         | Holds now when                               |
+|------------------+----------------------------------------------|
+| =previously φ=     | φ held at the commit before this one         |
+| =once φ=           | φ held at some commit up to now              |
+| =historically φ=   | φ held at every commit up to now             |
+| =φ since ψ=        | ψ held at some commit, and φ at every one after it |
+
+An =ask= turns a formula into a relation, whose attributes are its free
+variables:
+
+#+begin_src aleph
+-- suppliers that have stayed in London ever since they first shipped P1
+ask S(sno: s, city: 'London') since SP(sno: s, pno: 'P1') at main.
+
+-- parts that were red at some point and are not red now
+ask once P(pno: p, color: 'Red') and not P(pno: p, color: 'Red').
+#+end_src
+
+The past is finite, so every past formula is decidable, and Aleph never
+rereads it: each operator keeps a small summary relation that one δ is
+enough to update.
+
+* Requirements
+=require= states something that must hold at every commit. When a commit
+arrives, Aleph checks its δ against the requirements, and a commit that would
+break one is refused whole, with the requirement’s name and the tuples that
+broke it.
+
+#+begin_src aleph
+-- a supplier's status may rise or stay, never fall
+require status-never-falls:
+  always (S(sno: s, status: now) and previously S(sno: s, status: before)
+          -> now >= before)
+#+end_src
+
+Because a requirement looks only backwards, refusing is always possible:
+the kernel knows at commit time whether the new state is acceptable.
+
+* Promises are eggs
+=promise= states something about the future. The future cannot be checked
+yet, so a promise lays an egg: one tuple in =\relation\EGG=, recording which
+promise it was, the commit that laid it and the bindings that must be
+fulfilled.
+
+#+begin_src aleph
+promise orders-ship:
+  always (ORDER(id: o) -> eventually<=10 SHIPPED(id: o))
+#+end_src
+
+When order 42 is placed, an egg is laid for it. Each commit after that is a
+δ the egg is checked against:
+
+- if a =SHIPPED(id: 42)= tuple appears within ten commits, the egg hatches
+  and leaves =EGG=;
+- if ten commits pass without it, the egg spoils, and the spoiled egg stays
+  queryable with the commit at which the deadline passed.
+
+A promise without a bound — plain =eventually= — can never spoil in finite
+time, only hatch. Aleph keeps those eggs open and tells you how long they
+have waited.
+
+| Operator           | Holds now when                                  |
+|--------------------+-------------------------------------------------|
+| =next φ=             | φ holds at the next commit                      |
+| =eventually φ=       | φ holds at some commit from now on              |
+| =eventually<=n φ=    | … within the next =n= commits                     |
+| =always φ=           | φ holds at every commit from now on             |
+| =φ until ψ=          | ψ holds at some commit, and φ at every one before it |
+
+* In the same runtime
+Eggs are a relation like any other, so everyone can see what is still owed:
+
+#+begin_src sql
+-- from pureSQL: promises still open, oldest first
+SELECT PROMISE, LAID FROM EGG ORDER BY LAID;
+#+end_src
+
+A Forth word can walk =EGG= with =OPEN-RELATION=, a Dandelion bundle can
+follow from an egg to the order it is about, and the relations Aleph
+constrains are the ones every other subsystem writes. A requirement holds no
+matter which language made the commit: pureSQL, Forth, Karuta and Sol all
+pass through the same δ.
+
+Aleph and Sol meet at the edge between them. Aleph checks time as it
+happens; Sol can prove, before a program runs, that its transitions keep a
+bounded promise — so the egg is certain to hatch.

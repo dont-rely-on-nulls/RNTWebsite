@@ -47,3 +47,12 @@ code[data-lang="sol"] .hl-string { color: #98c379; }
 .hl-dl-reverse { color: #56b6c2; }
 .hl-dl-period { color: #828997; }
 code[data-lang="dandelion"] .hl-string { color: #F9B3C9; }
+
+/* Aleph: statements, the temporal modalities, relation atoms. */
+.hl-al-statement { color: #9DB8F5; font-weight: 700; }
+.hl-al-temporal { color: #F4A08A; font-weight: 700; }
+.hl-al-logic { color: #56b6c2; }
+.hl-al-relation { color: #A9E2C5; font-weight: 700; }
+.hl-al-label { color: #B9B9D6; }
+.hl-al-hash { color: #FFC685; }
+code[data-lang="aleph"] .hl-string { color: #F9B3C9; }
