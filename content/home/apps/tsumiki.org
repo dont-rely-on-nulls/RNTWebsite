@@ -1,0 +1,23 @@
+#+TITLE: Tsumiki
+#+WEIGHT: 5
+#+ICON: tsumiki-blocks.svg
+#+TAGLINE: Packages, the Nix and Guix way
+#+USES: sakura dandelion sol
+
+A purely functional package manager, in the line of Nix and Guix. A package
+is a value: its inputs and its build recipe, hashed together, so the store
+is content-addressed exactly as RNT’s tuples already are. Recipes are
+written in Sakura’s Lisp, as Guix writes them in Scheme, and Sol proves
+that evaluating them ends. A runtime closure is a Dandelion =DEPENDS*=, a
+profile generation is a commit, rolling back is checking out the one before,
+and garbage collection removes whatever no root reaches.
+
+#+begin_src lisp
+(Package (name "hello") (version "2.12.1")
+  (source (Fetch (url "mirror://gnu/hello/hello-2.12.1.tar.gz")
+                 (hash "sha256-jZkUKv2S…")))
+  (inputs (gcc make))
+  (build gnu-build))
+
+(Install (profile "default") (package hello))
+#+end_src

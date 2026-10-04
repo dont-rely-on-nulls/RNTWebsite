@@ -12,11 +12,16 @@ a blank row, and you ask a question by filling the blanks in with what an
 answer would look like.
 
 #+begin_src shoji
+-- which suppliers in London ship part P2?
 S  | SNO | SNAME | CITY
    | _s  | P.    | London
 
 SP | SNO | PNO
    | _s  | P2
+
+= | SNAME
+  | Smith
+  | Clark
 #+end_src
 
 # more
@@ -28,9 +33,10 @@ relation’s heading, the panes are blanks, and whatever you write in a pane
 says what you are looking for.
 
 * Skeletons
-The example above asks for the names of the suppliers in London that ship
-part P2. Nothing in it is a keyword. Each pane holds one of a few kinds of
-entry:
+The example above asks for the suppliers in London that ship part P2. The
+two skeletons are all you fill in; the last window is the answer Shoji
+opens, Smith and Clark from Date’s suppliers and parts. Nothing you typed is
+a keyword. Each pane holds one of a few kinds of entry:
 
 | Entry                 | Means                                                  |
 |-----------------------+--------------------------------------------------------|
@@ -49,11 +55,17 @@ shipment must agree.
 When a condition needs more than one pane, it goes in a condition box:
 
 #+begin_src shoji
+-- who ships between 200 and 400 of some part?
 SP | SNO | PNO | QTY
    | P.  | _p  | _q
 
 CONDITIONS
 _q > 200 and _q < 400
+
+= | SNO
+  | S1
+  | S2
+  | S4
 #+end_src
 
 * Changing things

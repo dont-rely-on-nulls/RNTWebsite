@@ -1,4 +1,4 @@
-#+TITLE: Programs, | not personalities.
+#+TITLE: Many languages, | one program.
 #+WINDOW: Applications
 #+WEIGHT: 3
 
@@ -10,6 +10,6 @@ object tree.
 
 An application has no language of its own. It is a package of relations,
 routines and constraints under =\application=, installed by merging a branch
-and removed by reverting it. Four games show the idea: in each one the
-position is relations, a move is a commit, and taking a move back is
-checking out the commit before it.
+and removed by reverting it. Four games and a package manager show the
+idea: in each one the state is relations, a change is a commit, and taking
+it back is checking out the commit before.

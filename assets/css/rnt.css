@@ -588,3 +588,14 @@ img { max-width: 100%; }
 }
 .app__chip:hover { border-color: var(--ink); }
 .app__chip img { width: 20px; height: 21px; }
+.shoji__caption { flex-basis: 100%; margin: 0 0 2px; font-family: var(--mono); font-size: 13px; color: #9A9AB8; }
+.shoji__caption::before { content: "-- "; }
+.shoji__arrow { align-self: center; padding: 0 2px; font-family: var(--mono); font-size: 22px; font-weight: 600; color: #C49460; }
+.shoji__win--answer { background: #FFFFFF; border-color: #5E7322; }
+.shoji__win--answer .shoji__title { background: #C9DB8C; border-bottom-color: #5E7322; color: var(--ink); }
+.shoji .shoji__win--answer .shoji__grid th { background: #F1F5DF; border-color: #5E7322; }
+.shoji .shoji__win--answer .shoji__grid td { border-left-color: #5E7322; height: auto; }
+.shoji .shoji__title, .shoji .shoji__cond { margin: 0; }
+.shoji .shoji__caption { margin: 0 0 2px; }
+.shoji__result { display: flex; align-items: center; gap: 14px; }
+.shoji .shoji__win--answer .shoji__grid { width: 100%; }

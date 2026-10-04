@@ -139,7 +139,8 @@
   // Shoji has no text syntax: a block is drawn as the skeleton windows it
   // describes. Each paragraph is one window; its first line is the heading,
   // "relation | attribute | …", and each line after it is a row. A paragraph
-  // without bars is a condition box.
+  // without bars is a condition box, one starting with "--" is the question
+  // in words, and one whose heading starts with "=" is the answer Shoji opens.
   function entry(text) {
     return text.split(/(\s+)/).map(function (t) {
       if (/^_[A-Za-z0-9]+$/.test(t)) return '<span class="shoji__ex">' + escape(t.slice(1)) + "</span>";
@@ -152,20 +153,34 @@
 
   function skeletons(text) {
     return text.trim().split(/\n\s*\n/).map(function (block) {
-      var lines = block.split("\n");
-      if (lines[0].indexOf("|") < 0) {
-        return '<div class="shoji__win shoji__win--cond"><p class="shoji__title">' + escape(lines[0].trim()) +
-          '</p><p class="shoji__cond">' + lines.slice(1).map(function (l) { return entry(l.trim()); }).join("<br>") + "</p></div>";
-      }
-      var rows = lines.map(function (l) { return l.split("|").map(function (c) { return c.trim(); }); });
-      var head = "<tr>" + rows[0].map(function (c, i) {
-        return (i ? "<th scope=\"col\">" : '<th class="shoji__rel" scope="col">') + escape(c) + "</th>";
-      }).join("") + "</tr>";
-      var body = rows.slice(1).map(function (r) {
-        return "<tr>" + r.map(function (c) { return "<td>" + entry(c) + "</td>"; }).join("") + "</tr>";
-      }).join("");
-      return '<div class="shoji__win"><table class="shoji__grid"><thead>' + head + "</thead><tbody>" + body + "</tbody></table></div>";
+      var lines = block.split("\n"), said = [];
+      while (lines.length && /^\s*--/.test(lines[0])) said.push(lines.shift().replace(/^\s*--\s?/, ""));
+      var caption = said.length ? '<p class="shoji__caption">' + escape(said.join(" ")) + "</p>" : "";
+      return caption + (lines.length ? skeleton(lines) : "");
     }).join("");
+  }
+
+  function skeleton(lines) {
+    if (lines[0].indexOf("|") < 0) {
+      return '<div class="shoji__win shoji__win--cond"><p class="shoji__title">' + escape(lines[0].trim()) +
+        '</p><p class="shoji__cond">' + lines.slice(1).map(function (l) { return entry(l.trim()); }).join("<br>") + "</p></div>";
+    }
+    var rows = lines.map(function (l) { return l.split("|").map(function (c) { return c.trim(); }); });
+    if (rows[0][0] === "=") {
+      var cols = rows[0].slice(1);
+      return '<div class="shoji__result"><span class="shoji__arrow" aria-hidden="true">→</span><div class="shoji__win shoji__win--answer"><p class="shoji__title">Answer</p>' +
+        '<table class="shoji__grid"><thead><tr>' + cols.map(function (c) { return '<th scope="col">' + escape(c) + "</th>"; }).join("") +
+        "</tr></thead><tbody>" + rows.slice(1).map(function (r) {
+          return "<tr>" + r.slice(1).map(function (c) { return "<td>" + escape(c) + "</td>"; }).join("") + "</tr>";
+        }).join("") + "</tbody></table></div></div>";
+    }
+    var head = "<tr>" + rows[0].map(function (c, i) {
+      return (i ? "<th scope=\"col\">" : '<th class="shoji__rel" scope="col">') + escape(c) + "</th>";
+    }).join("") + "</tr>";
+    var body = rows.slice(1).map(function (r) {
+      return "<tr>" + r.map(function (c) { return "<td>" + entry(c) + "</td>"; }).join("") + "</tr>";
+    }).join("");
+    return '<div class="shoji__win"><table class="shoji__grid"><thead>' + head + "</thead><tbody>" + body + "</tbody></table></div>";
   }
 
   document.querySelectorAll("code[data-lang]").forEach(function (code) {

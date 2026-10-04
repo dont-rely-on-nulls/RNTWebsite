@@ -69,3 +69,6 @@ open = true
   [[nodes.rows]]
   name = "shogi · mahjong"
   by = "application"
+  [[nodes.rows]]
+  name = "tsumiki"
+  by = "application"
