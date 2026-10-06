@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RNT Explorer</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #6b6aa8; }
+  canvas { display: block; outline: none; }
+  #loading { position: fixed; inset: 0; display: grid; place-items: center; color: #f4f4f8;
+    font: 15px/1.4 ui-monospace, Menlo, monospace; pointer-events: none; }
+  #loading.gone { display: none; }
+</style>
+</head>
+<body>
+<canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+<div id="loading">starting RNT</div>
+<script src="app.js"></script>
+<script src="rnt.js"></script>
+<script>start();</script>
+</body>
+</html>

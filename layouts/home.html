@@ -8,7 +8,10 @@
     <h1 class="hero__title">{{ partial "lines.html" .Params.headline }}</h1>
     <div class="hero__lede">{{ .Content }}</div>
     <div class="actions">
-      <a class="btn btn--primary" href="#architecture">Read the design</a>
+      {{- with site.GetPage "/try" }}
+      <a class="btn btn--primary" href="{{ .RelPermalink }}">Try it in your browser</a>
+      {{- end }}
+      <a class="btn btn--ghost" href="#architecture">Read the design</a>
       <a class="btn btn--ghost" href="{{ site.Params.sourceURL }}">Browse the source</a>
     </div>
   </div>

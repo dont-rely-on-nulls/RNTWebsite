@@ -12,13 +12,31 @@ Emacs export step is involved.
 | =content/_index.org=     | the hero: eyebrow, headline, introduction                |
 | =content/home/=          | the home page windows, in order of =#+WEIGHT=            |
 | =content/subsystems/=    | one page per subsystem                                   |
+| =content/try.org=        | the Try it page, around the Explorer in the browser      |
 | =data/architecture.toml= | the NT-style layer diagram                               |
 | =data/objecttree.toml=   | the object tree listing                                  |
 | =layouts/=               | templates: the desktop, its windows and the menu bar     |
 | =static/images/=         | the isometric solids and the wallpaper tile              |
+| =static/try/explorer/=   | the browser build of RNT, copied from [[../Web][Web]]                |
 
 The files under =content/home/= are read by the home page and are never
 rendered as pages of their own.
+
+** The Try it page
+=/try/= runs the Explorer in the visitor's tab: the kernel and its
+subsystems compiled to WebAssembly by [[../Web][Web]]. The build is a page of its own
+under =static/try/explorer/=; the Try it page loads it into a frame when the
+visitor presses /Start RNT/, so the home page never downloads it. Its
+database is IndexedDB on the site's origin, which /Reset database/ deletes.
+
+The build is committed, since the deploy workflow has only Hugo. To bring
+it up to date:
+#+begin_src sh
+scripts/update-explorer.sh              # nix build ../Web, then copy it
+scripts/update-explorer.sh ../Web/result  # copy a build that already exists
+#+end_src
+The script also turns =../Explorer/docs/explorer.png= into the screenshot
+shown before the Explorer starts.
 
 ** A subsystem page
 Front matter names its icon, the accent of its tagline, its port and the

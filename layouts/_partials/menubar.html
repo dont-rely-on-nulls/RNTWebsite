@@ -11,6 +11,9 @@
       {{- end }}
       <a href="{{ site.Params.docsURL }}">Docs</a>
       <a href="{{ site.Params.sourceURL }}">Source</a>
+      {{- with site.GetPage "/try" }}
+      <a class="menubar__try" href="{{ .RelPermalink }}"{{ if $.Eq . }} aria-current="page"{{ end }}>Try it</a>
+      {{- end }}
     </div>
   </nav>
 </header>

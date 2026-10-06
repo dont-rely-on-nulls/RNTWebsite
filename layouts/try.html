@@ -1,0 +1,42 @@
+{{ define "main" }}
+<section class="wrap section section--first">
+  <div class="window">
+    {{ partial "titlebar.html" .Params.window }}
+    <div class="window__body">
+      <div class="try-head">
+        <div class="try-head__text">
+          <h1 class="display">{{ partial "lines.html" .Params.headline }}</h1>
+          <p class="lede">{{ .Params.intro }}</p>
+        </div>
+        <p class="try-head__facts">≈ 2 MB download<br>runs entirely in this tab<br>best with a mouse and keyboard</p>
+      </div>
+
+      <div class="stage" id="stage" data-src="{{ "try/explorer/" | relURL }}">
+        <img class="stage__shot" src="{{ "images/explorer.jpg" | relURL }}" alt="The RNT Explorer: an object browser, a workspace, the event log and a Soroban prompt on the RNT desktop" width="1580" height="920">
+        <div class="stage__veil" id="stage-veil">
+          <div class="stage__pitch">
+            <img src="{{ "images/rnt-trio.svg" | relURL }}" alt="" width="62" height="60">
+            <p class="stage__line">A whole RNT desktop: the object browser, a workspace and a prompt for every subsystem.</p>
+            <button type="button" class="btn btn--primary" id="try-start">Start RNT</button>
+            <p class="stage__hint">Nothing loads until you press it.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-bar">
+        <p class="stage-bar__status" role="status"><span class="stage-bar__dot" id="try-dot"></span><span id="try-status">not started</span></p>
+        <div class="stage-bar__actions">
+          <button type="button" class="btn btn--plain" id="try-full" disabled>Full screen</button>
+          <button type="button" class="btn btn--plain" id="try-reset">Reset database</button>
+          <button type="button" class="btn btn--plain" id="try-stop" disabled>Stop</button>
+        </div>
+      </div>
+
+      <div class="try-notes">{{ .Content }}</div>
+    </div>
+  </div>
+</section>
+{{- with resources.Get "js/try.js" | minify | fingerprint }}
+<script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" defer></script>
+{{- end }}
+{{ end }}

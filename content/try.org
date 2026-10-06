@@ -1,0 +1,20 @@
+#+TITLE: Try it
+#+LAYOUT: try
+#+HEADLINE: Try RNT | without installing it.
+#+WINDOW: Explorer — running in this tab
+#+DESCRIPTION: The RNT kernel and its subsystems, compiled to WebAssembly and running in your browser.
+#+INTRO: The kernel and every subsystem the host runs, compiled to WebAssembly and started in this tab. There is no server behind it: your database lives in this browser, and nobody else sees it.
+
+* What runs
+The kernel with pureSQL, Forth, Dandelion, Aleph, Shoji, Soroban, Tangram,
+Kintsugi and Omikuji, with Chess and Shogi installed under =\application=,
+as the host installs them.
+
+* Where your data goes
+Nowhere. The database is LMDB, kept in this browser's storage, so it
+outlives a reload. /Reset database/ deletes it, and so does clearing the
+site's data.
+
+* What's left out
+Sakura, which the host doesn't run. History lives in memory, as on the
+native host, so a reload starts the journal over.
